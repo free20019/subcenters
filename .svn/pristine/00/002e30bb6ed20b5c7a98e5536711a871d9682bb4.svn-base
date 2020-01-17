@@ -1,0 +1,75 @@
+package mvc.filter;
+
+import java.io.IOException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+public class Router implements Filter {
+	Logger logger=Logger.getLogger(this.getClass());
+	@Override
+	public void destroy() {
+
+	}
+
+	@Override
+	public void doFilter(ServletRequest arg0, ServletResponse arg1,
+			FilterChain arg2) throws IOException, ServletException {
+
+		HttpServletRequest request = (HttpServletRequest) arg0;
+		HttpServletResponse response = (HttpServletResponse) arg1;
+    	request.setCharacterEncoding("UTF-8");
+    	response.setCharacterEncoding("UTF-8");
+    	String user = String.valueOf(request.getSession().getAttribute("companyId"));
+    	String contextPath = request.getRequestURL().toString();
+    	String origin = request.getHeader("Origin");
+    	response.setHeader("Access-Control-Allow-Origin", origin==null?"*":origin);
+    	response.setHeader("Access-Control-Allow-Credentials", "true");
+    	String method = request.getMethod();
+//    	System.out.println("###"+method);
+    	if(method.toUpperCase().equals("OPTIONS")){
+    		response.setHeader("Access-Control-Allow-Origin", "*");
+	    	response.setHeader("Access-Control-Allow-Credentials", "true");
+    	}
+		response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+		response.setHeader("Access-Control-Max-Age", "3600");
+		response.setHeader("Access-Control-Allow-Headers",
+				"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+		response.setHeader("Content-Type","application/json;charset=UTF-8");
+    	//测试用
+//		request.getSession().setAttribute("userid","444");
+//		request.getSession().setAttribute("parent","10");
+//		request.getSession().setAttribute("comps","'滨江出租','测试','淳安县大众出租车有限公司','淳安县山城出租有限公司','淳安县众安出租车有限公司','调度中心','富阳东吴客运出租有限公司','富阳九龙出租车有限公司','富阳秋丰出租车有限公司','拱墅出租','杭州安心出租汽车有限公司','杭州安心出租汽车有限公司','杭州安心出租汽车有限公司','杭州八达客运旅游有限公司','杭州百事顺运输有限公司','杭州北山出租汽车有限公司','杭州北山出租汽车有限公司','杭州北山旅游服务有限公司','杭州常青客运出租有限公司','杭州常青客运有限公司','杭州长江客车旅游服务公司','杭州长运三运运输有限公司','杭州出租汽车集团有限公司','杭州春光旅游有限公司','杭州大众出租汽车股份有限公司','杭州大众出租汽车股份有限公司(文明办)','杭州富阳玛莉汽车出租有限公司','杭州富阳强生客运出租有限公司','杭州富阳腾飞客运出租车有限公司','杭州富阳通途客运出租有限公司','杭州富阳永安客运出租有限公司','杭州富阳征程客运服务有限公司','杭州高驰汽车旅游服务有限公司','杭州公共交通下沙有限公司','杭州古荡汽车运输公司','杭州国运汽车出租有限公司','杭州杭玻运输有限公司','杭州和谐出租汽车服务管理有限公司','杭州鸿顺旅游客运有限公司','杭州沪杭汽车客运有限公司','杭州华丽客运出租有限公司','杭州华旅客运有限公司','杭州集阳运输有限公司','杭州嘉旅汽车有限公司','杭州近江汽车运输有限公司','杭州经济技术开发区和达物业管理有限公司','杭州经济技术开发区和达物业管理有限公司','杭州经纬汽车客运有限公司','杭州客旅汽车出租公司','杭州蓝联出租汽车服务管理有限公司','杭州丽星旅行社有限公司','杭州利群出租车有限公司','杭州临平客运出租有限公司','杭州美都汽车出租有限公司','杭州明兴汽车旅游出租有限公司','杭州南山运输有限公司','杭州农发出租汽车有限公司','杭州庆春汽车出租服务有限公司','杭州庆春汽车运输队','杭州三才实业有限责任公司','杭州三产发展服务公司','杭州三客实业总公司','杭州三星客运出租汽车有限公司','杭州商业储运有限公司','杭州神龙汽车出租有限公司','杭州胜德出租汽车有限公司','杭州胜众客运有限公司','杭州石桥汽车运输有限公司','杭州市农工商客运有限公司','杭州市萧山公共交通有限公司','杭州市兴业出租汽车行业服务中心','杭州双雁客运有限公司','杭州四方客运有限公司','杭州四方客运有限公司','杭州天城客运汽车出租服务有限公司','杭州天城客运汽车出租服务有限公司','杭州天目山旅游客运公司','杭州天堂大酒店客运社','杭州外事旅游汽车集团有限公司','杭州外事旅游汽车集团有限公司','杭州万利汽车出租公司','杭州望湖宾馆有限责任公司','杭州西湖新能源汽车运营有限公司 ','杭州西子车船服务有限公司','杭州喜得宝客运社','杭州祥福小车客运队','杭州祥旅客运出租有限公司','杭州萧山长运出租车有限公司','杭州萧山发展汽车有限公司','杭州萧山交投出租汽车服务有限公司','杭州萧山客运旅游有限公司','杭州萧山汽车出租有限公司','杭州新能源出租汽车有限公司','杭州雅安汽车出租有限公司','杭州一运出租汽车有限公司','杭州友谊汽车服务社','杭州余杭安达汽车出租有限公司','杭州余杭交通客运服务有限公司','杭州余杭瑞顺客运有限公司','杭州余杭通宇公交客运有限公司','杭州余杭众信客运出租有限公司','杭州园林出租汽车有限公司','杭州振华起重运输装卸有限公司','杭州之江客运出租有限公司','杭州之江旅游汽车有限公司','杭州之江汽车出租有限公司','杭州之江汽车出租有限公司','杭州中环实业有限公司','杭州中新客运社','杭州中信客运服务有限公司','杭州笕桥汽车运输公司','建德大众客运有限公司','建德市交通开发公司出租车中心','建德市强生客运出租有限公司','建德市顺捷出租汽车有限公司','江干出租','临安昌化镇联谊客运有限公司','临安长运出租汽车有限公司(1车队)','临安长运出租汽车有限公司(2车队)','临安市安达客运出租汽车有限公司','临安市强盛客运出租汽车有限公司','临安众安客运出租汽车有限公司','临安众盛客运出租汽车有限公司','上城出租','西湖出租','下城出租','萧山安达汽车出租有限公司','萧山出租','萧山大众出租有限公司','萧山万兴旅游汽车有限公司','余杭长渡客运有限公司','余杭广丰客运出租有限公司','余杭交运集团临平地区','余杭交运集团瓶窑地区','余杭交运集团余杭地区','运管账号','浙江二轻迅达经贸有限公司','浙江风光旅游客运有限公司','浙江广播电视发展总公司','浙江华贸汽车有限公司','浙江通信产业服务有限公司','浙江外事旅游汽车有限公司','浙江物产元通汽车集团有限公司','浙江中侨汽车出租有限公司'");
+		
+    	if(user.equals("null") && !method.toUpperCase().equals("OPTIONS")){
+//    		if(contextPath.indexOf("/home") >= 0
+//    				||contextPath.indexOf("/index.html") >= 0
+//    				||contextPath.indexOf("bike/getLogin") >= 0){
+//        		System.out.println(contextPath+":###:"+user);
+//    			response.sendRedirect("http://www.nbgxdcjg.com.cn/#/login");
+//    			return;
+//    		}
+		}
+		try {
+			arg2.doFilter(arg0, arg1);
+		} catch (Exception e) {
+			String exceptionString = ExceptionUtils.getFullStackTrace(e);
+			System.out.println(exceptionString);
+			logger.error(exceptionString);
+		}
+	}
+
+	@Override
+	public void init(FilterConfig arg0) throws ServletException {
+	}
+}

@@ -1,0 +1,39 @@
+package mvc.controllers;
+
+
+
+import mvc.service.CommonServer;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping(value = "/common")
+public class CommonAction {
+	private CommonServer commonService;
+
+	public CommonServer getCommonServer() {
+		return commonService;
+	}
+
+	@Autowired
+	public void setCommonServer(CommonServer commonService) {
+		this.commonService = commonService;
+	}
+
+	@RequestMapping("/vehicle")
+	@ResponseBody
+	public String getVehicle(){
+		String msg=commonService.getVehicle();
+		return msg;
+	}
+
+	@RequestMapping("/company")
+	@ResponseBody
+	public String getCompany(){
+		String msg=commonService.getCompany();
+		return msg;
+	}
+}

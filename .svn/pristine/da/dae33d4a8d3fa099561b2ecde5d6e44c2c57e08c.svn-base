@@ -1,0 +1,105 @@
+package mvc.service;
+
+
+import helper.JacksonUtil;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+
+@Service
+public class CommonServer {
+	protected JdbcTemplate jdbcTemplate = null;
+	protected JdbcTemplate jdbcTemplate2 = null;
+
+	public JdbcTemplate getJdbcTemplate() {
+		return jdbcTemplate;
+	}
+
+	@Autowired
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
+
+	public JdbcTemplate getJdbcTemplate2() {
+		return jdbcTemplate2;
+	}
+
+	@Autowired
+	public void setJdbcTemplate2(JdbcTemplate jdbcTemplate2) {
+		this.jdbcTemplate2 = jdbcTemplate2;
+	}
+
+	private JacksonUtil jacksonUtil = JacksonUtil.buildNormalBinder();
+	
+	public String test() {
+		System.out.println(jdbcTemplate);
+		System.out.println(jdbcTemplate2);
+		return "ok";
+	}
+
+	//车牌
+	public String getVehicle() {
+		String sql = "select distinct PLATE_NUMBER vehicle_no, company_name from tb_global_vehicle@db69 where industry=090 and business_scope_code = 1400  AND STATUS_NAME='营运' AND PLATE_NUMBER LIKE '浙A%' order by PLATE_NUMBER";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//公司
+	public String getCompany() {
+		String sql = "select distinct company_name from tb_global_vehicle where industry=090 and business_scope_code = 1400  AND STATUS_NAME='营运' AND PLATE_NUMBER LIKE '浙A%' AND company_name <>' ' order by company_name";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//车牌号变更申请_新车牌
+	public String getNewVehicle() {
+		String sql = "select distinct NEW_VEHICLE_NO vehicle_no from tb_vehicle_change@db69 order by NEW_VEHICLE_NO";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//车辆组
+    public String getGroupVehicle(HttpServletRequest request) {
+		String id = String.valueOf(request.getSession().getAttribute("userid"));
+		String sql="select g.group_name,g.group_id," +
+				"(select count(*) from TB_TAXI_VEHICLE_GROUP v where v.group_id=g.group_id) count" +
+				" from TB_TAXI_VEHICLE_GROUPNAME g where g.user_id='"+id+"'";
+		sql += " order by nlssort(g.group_name,'NLS_SORT=SCHINESE_PINYIN_M')";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+    }
+
+	//岗位
+    public String getStation() {
+		String sql = "select distinct * from TB_TAXI_STATION order by nlssort(STATION_NAME,'NLS_SORT=SCHINESE_PINYIN_M')";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+    }
+
+	//用户管理公司
+	public String getUserCompany() {
+		String sql = "select distinct comp_name from TB_COMPANY@db69 order by nlssort(comp_name,'NLS_SORT=SCHINESE_PINYIN_M')";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//功能列表
+	public String getPower() {
+		String sql = "select * from tb_power_list order by module_id, id";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+}

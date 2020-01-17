@@ -1,0 +1,1197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="GROUP_BY_SEVERITY" value="true" />
+  </component>
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="subcenters:war exploded" />
+    </artifacts-to-build>
+  </component>
+  <component name="BookmarkManager">
+    <bookmark url="file://$PROJECT_DIR$/src/mvc/filter/Router.java" line="50" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="fdfb334e-8a5a-4c55-8988-5cf15b28e844" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/target/classes/db/DBAccess.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/db/DBAccess.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/excle/JsyshExcel.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/excle/JsyshExcel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/excle/ReadExcel.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/excle/ReadExcel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/ChartSchedule.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/ChartSchedule.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/CheckCode.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/CheckCode.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/Client.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/Client.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/DownloadAct.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/DownloadAct.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/ExcelUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/ExcelUtil.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/ExcelUtilHB.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/ExcelUtilHB.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/GeometryHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/GeometryHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/JWDSwitch.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/JWDSwitch.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/JacksonUtil$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/JacksonUtil$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/JacksonUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/JacksonUtil.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/LogUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/LogUtil.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/MessageClient$ServerHander.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/MessageClient$ServerHander.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/MessageClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/MessageClient.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/MyDialect.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/MyDialect.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/NormMap.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/NormMap.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/SysHelper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/SysHelper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/ZipUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/ZipUtils.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/helper/test.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/helper/test.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/jdbc.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/jdbc.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/log4j.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/log4j.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/cache/GisData.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/cache/GisData.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/controllers/AreaAction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/controllers/AreaAction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/controllers/ClqkAction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/controllers/ClqkAction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/controllers/CommonAction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/controllers/CommonAction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/controllers/DailySupervisionAction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/controllers/DailySupervisionAction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/controllers/EnterpriseManagementSystemAction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/controllers/EnterpriseManagementSystemAction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/controllers/PowerAction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/controllers/PowerAction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/controllers/VerifyCodeServletTwist.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/controllers/VerifyCodeServletTwist.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/controllers/bikeAction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/controllers/bikeAction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/controllers/mapAction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/controllers/mapAction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/entity/TbCompany.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/entity/TbCompany.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/entity/Vehicle.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/entity/Vehicle.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/filter/Router.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/filter/Router.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/listener/SystemInitLister.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/listener/SystemInitLister.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/mapper/bikeDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/mapper/bikeDao.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/mapper/dailySupervisionDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/mapper/dailySupervisionDao.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/mapper/mapDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/mapper/mapDao.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/service/AreaService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/service/AreaService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/service/ClqkService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/service/ClqkService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/service/CommonServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/service/CommonServer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/service/DailySupervisionServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/service/DailySupervisionServer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/service/EnterpriseManagementSystemService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/service/EnterpriseManagementSystemService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/service/GisService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/service/GisService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/service/PowerService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/service/PowerService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/service/bikeServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/service/bikeServer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/mvc/service/mapServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/mvc/service/mapServer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/spring/applicationContext-activemq.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/spring/applicationContext-activemq.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/spring/applicationContext-db.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/spring/applicationContext-db.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/spring/applicationContext.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/spring/applicationContext.xml" afterDir="false" />
+    </list>
+    <ignored path="$PROJECT_DIR$/target/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CompilerWorkspaceConfiguration">
+    <option name="MAKE_PROJECT_ON_SAVE" value="true" />
+    <option name="PARALLEL_COMPILATION" value="true" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="subcenters" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/mvc/controllers/CommonAction.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="348">
+              <caret line="32" column="37" lean-forward="true" selection-start-line="32" selection-start-column="37" selection-end-line="32" selection-end-column="37" />
+              <folding>
+                <element signature="e#560#561#0" expanded="true" />
+                <element signature="e#587#588#0" expanded="true" />
+                <element signature="e#659#660#0" expanded="true" />
+                <element signature="e#700#701#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/mvc/service/CommonServer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-227">
+              <caret line="103" column="73" selection-start-line="103" selection-start-column="56" selection-end-line="103" selection-end-column="73" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/mvc/controllers/QueryAnalysisAction.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="336">
+              <caret line="156" column="40" selection-start-line="156" selection-start-column="40" selection-end-line="156" selection-end-column="40" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/mvc/service/QueryAnalysisService.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="439">
+              <caret line="51" column="23" lean-forward="true" selection-start-line="51" selection-start-column="7" selection-end-line="51" selection-end-column="23" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/mvc/service/BasicDataService.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="456">
+              <caret line="35" column="38" selection-start-line="35" selection-start-column="36" selection-end-line="35" selection-end-column="38" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/mvc/service/DataStatisticsService.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="211">
+              <caret line="697" column="10" selection-start-line="697" selection-start-column="10" selection-end-line="697" selection-end-column="10" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/mvc/controllers/DataStatisticsAction.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="372">
+              <caret line="134" column="61" lean-forward="true" selection-start-line="134" selection-start-column="61" selection-end-line="134" selection-end-column="61" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/mvc/service/LetterManagementService.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="8626">
+              <caret line="463" column="55" selection-start-line="463" selection-start-column="55" selection-end-line="463" selection-end-column="55" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>Map</find>
+      <find>map.put</find>
+      <find>catch (</find>
+      <find>vehicleGroupId</find>
+      <find>1.12.</find>
+      <find>loginType==&quot;1&quot;</find>
+      <find>(String)((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())</find>
+      <find>String loginType = (String)((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute(&quot;loginType&quot;);</find>
+      <find>String vehicleGroupId = (String)((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getParameter(&quot;vehicleGroupId&quot;);</find>
+      <find>String comps=(String) ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute(&quot;comps&quot;);</find>
+      <find>String vehicles=(String) ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute(&quot;groupVhic&quot;);</find>
+      <find>(string)</find>
+      <find>Transformation</find>
+      <find>TB_TAXI_VEHICLE_GROUPNAME</find>
+      <find>userCompany</find>
+      <find>&gt;=</find>
+      <find>上线</find>
+      <find>空重车</find>
+      <find>空</find>
+      <find>findDates</find>
+      <find>stime</find>
+      <find>yyyy-mm</find>
+      <find>单车里程</find>
+      <find>ndMessageRe</find>
+      <find>tj +=&quot; and (1=0 or v.ba_name</find>
+      <find>tj +=&quot; and (1=0 or</find>
+      <find>tj +=&quot; and (1=0</find>
+      <find>new Date(moment().add('day', -1));</find>
+      <find>tj +=&quot; and (1=0 or</find>
+      <find>tb_global_vehicle</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>DB69</replace>
+      <replace>MileageStatistics</replace>
+      <replace>CyclingMileageStatistics</replace>
+      <replace>VehicleOnlineStatistics</replace>
+      <replace>DownloadAct.parse</replace>
+      <replace>DownloadAct.do</replace>
+      <replace>DownloadAct.</replace>
+      <replace />
+      <replace>&quot;1&quot;.eque</replace>
+      <replace>&quot;1&quot;.equals(loginType)</replace>
+      <replace>String loginType = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute(&quot;loginType&quot;)==null?&quot;&quot;:((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute(&quot;loginType&quot;).toString();</replace>
+      <replace>String comps=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute(&quot;comps&quot;)==null?&quot;&quot;:((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute(&quot;comps&quot;).toString();</replace>
+      <replace>String vehicles=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute(&quot;groupVhic&quot;)==null?&quot;&quot;:((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute(&quot;groupVhic&quot;).toString();</replace>
+    </replaceStrings>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/resources/spring/applicationContext-activemq.xml" />
+        <option value="$PROJECT_DIR$/resources/jdbc.properties" />
+        <option value="$PROJECT_DIR$/src/helper/LogUtil.java" />
+        <option value="$PROJECT_DIR$/resources/log4j.properties" />
+        <option value="$PROJECT_DIR$/src/mvc/service/DailySupervisionServer.java" />
+        <option value="$PROJECT_DIR$/src/mvc/controllers/LetterManagementAction.java" />
+        <option value="$PROJECT_DIR$/src/mvc/controllers/BasicDataAction.java" />
+        <option value="$PROJECT_DIR$/src/mvc/service/JmsListener.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/src/mvc/service/mapServer.java" />
+        <option value="$PROJECT_DIR$/src/mvc/service/LetterManagementService.java" />
+        <option value="$PROJECT_DIR$/src/mvc/controllers/CommonAction.java" />
+        <option value="$PROJECT_DIR$/resources/spring/applicationContext-mvc.xml" />
+        <option value="$PROJECT_DIR$/WebRoot/WEB-INF/web.xml" />
+        <option value="$PROJECT_DIR$/WebRoot/index.html" />
+        <option value="$PROJECT_DIR$/src/mvc/service/BasicDataService.java" />
+        <option value="$PROJECT_DIR$/src/mvc/filter/Router.java" />
+        <option value="$PROJECT_DIR$/src/mvc/controllers/QueryAnalysisAction.java" />
+        <option value="$PROJECT_DIR$/src/mvc/controllers/DataStatisticsAction.java" />
+        <option value="$PROJECT_DIR$/src/mvc/service/DataStatisticsService.java" />
+        <option value="$PROJECT_DIR$/src/mvc/service/QueryAnalysisService.java" />
+        <option value="$PROJECT_DIR$/src/mvc/service/CommonServer.java" />
+      </list>
+    </option>
+  </component>
+  <component name="JRebelWorkspace">
+    <option name="jrebelEnabledAutocompile" value="true" />
+  </component>
+  <component name="LogFilters">
+    <option name="FILTER_ERRORS" value="false" />
+    <option name="FILTER_WARNINGS" value="false" />
+    <option name="FILTER_INFO" value="false" />
+    <option name="FILTER_DEBUG" value="false" />
+    <option name="CUSTOM_FILTER" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="localRepository" value="E:\repo" />
+        <option name="mavenHome" value="E:/java/apache-maven-3.5.0" />
+        <option name="userSettingsFile" value="E:\repo\settings1.xml" />
+      </MavenGeneralSettings>
+    </option>
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="importAutomatically" value="true" />
+      </MavenImportingSettings>
+    </option>
+  </component>
+  <component name="MavenProjectNavigator">
+    <treeState>
+      <expand>
+        <path>
+          <item name="" type="16c1761:MavenProjectsStructure$RootNode" />
+          <item name="subcenters" type="9519ce18:MavenProjectsStructure$ProjectNode" />
+        </path>
+        <path>
+          <item name="" type="16c1761:MavenProjectsStructure$RootNode" />
+          <item name="subcenters" type="9519ce18:MavenProjectsStructure$ProjectNode" />
+          <item name="Lifecycle" type="58874e2:MavenProjectsStructure$LifecycleNode" />
+        </path>
+        <path>
+          <item name="" type="16c1761:MavenProjectsStructure$RootNode" />
+          <item name="subcenters" type="9519ce18:MavenProjectsStructure$ProjectNode" />
+          <item name="Plugins" type="7aea1407:MavenProjectsStructure$PluginsNode" />
+        </path>
+        <path>
+          <item name="" type="16c1761:MavenProjectsStructure$RootNode" />
+          <item name="subcenters" type="9519ce18:MavenProjectsStructure$ProjectNode" />
+          <item name="Dependencies" type="f4be9f2a:MavenProjectsStructure$DependenciesNode" />
+        </path>
+      </expand>
+      <select />
+    </treeState>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="20" />
+    <option name="y" value="303" />
+    <option name="width" value="1943" />
+    <option name="height" value="1103" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="subcenters" type="b2602c69:ProjectViewProjectNode" />
+              <item name="subcenters" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="subcenters" type="b2602c69:ProjectViewProjectNode" />
+              <item name="subcenters" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="subcenters" type="b2602c69:ProjectViewProjectNode" />
+              <item name="subcenters" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="mvc" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="subcenters" type="b2602c69:ProjectViewProjectNode" />
+              <item name="subcenters" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="mvc" type="462c0819:PsiDirectoryNode" />
+              <item name="controllers" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="MyBatisLogPluginparameters" value="Parameters:" />
+    <property name="MyBatisLogPluginpreparing" value="Preparing:" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1578903495279" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../taximonitor" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="project.structure.last.edited" value="Facets" />
+    <property name="project.structure.proportion" value="0.1953125" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="MavenSettings" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\ideaworkspace\subcenters\WebRoot" />
+    </key>
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="mvc.service" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="Tomcat 7.0.73" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 7.0.73" ALTERNATIVE_JRE_ENABLED="true" ALTERNATIVE_JRE_PATH="1.8" nameIsGenerated="true">
+      <option name="BROWSER_ID" value="98ca6316-2f89-46d9-a9e5-fa9e2b0625b3" />
+      <option name="UPDATE_ON_FRAME_DEACTIVATION" value="true" />
+      <option name="UPDATE_CLASSES_ON_FRAME_DEACTIVATION" value="true" />
+      <deployment>
+        <artifact name="subcenters:war exploded">
+          <settings>
+            <option name="CONTEXT_PATH" value="/subcenters" />
+          </settings>
+        </artifact>
+      </deployment>
+      <server-settings>
+        <option name="BASE_DIRECTORY_NAME" value="Unnamed_subcenters" />
+        <option name="HTTP_PORT" value="8086" />
+      </server-settings>
+      <predefined_log_file enabled="true" id="Tomcat" />
+      <predefined_log_file enabled="true" id="Tomcat Catalina" />
+      <predefined_log_file id="Tomcat Manager" />
+      <predefined_log_file id="Tomcat Host Manager" />
+      <predefined_log_file id="Tomcat Localhost Access" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="51782" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="JRebel Debug">
+        <option name="DEBUG_PORT" value="63561" />
+      </RunnerSettings>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Cover">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Debug">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="JRebel Debug">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="JRebel Executor">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Run">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="BuildArtifacts" enabled="true">
+          <artifact name="subcenters:war exploded" />
+        </option>
+      </method>
+    </configuration>
+  </component>
+  <component name="SvnConfiguration" cleanupOnStartRun="true">
+    <configuration>C:\Users\xlhuang\AppData\Roaming\Subversion</configuration>
+    <supportedVersion>125</supportedVersion>
+  </component>
+  <component name="SvnFileUrlMappingImpl">
+    <option name="myMappingRoots">
+      <list>
+        <SvnCopyRootSimple>
+          <option name="myVcsRoot" value="E:\ideaworkspace\subcenters" />
+          <option name="myCopyRoot" value="E:\ideaworkspace\subcenters" />
+        </SvnCopyRootSimple>
+      </list>
+    </option>
+    <option name="myMoreRealMappingRoots">
+      <list>
+        <SvnCopyRootSimple>
+          <option name="myVcsRoot" value="E:\ideaworkspace\subcenters" />
+          <option name="myCopyRoot" value="E:\ideaworkspace\subcenters" />
+        </SvnCopyRootSimple>
+      </list>
+    </option>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fdfb334e-8a5a-4c55-8988-5cf15b28e844" name="Default Changelist" comment="" />
+      <created>1565169401950</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1565169401950</updated>
+      <workItem from="1565169407306" duration="1160000" />
+      <workItem from="1565224604105" duration="18836000" />
+      <workItem from="1565253295615" duration="2711000" />
+      <workItem from="1565311087977" duration="1621000" />
+      <workItem from="1565314904255" duration="399000" />
+      <workItem from="1565315553556" duration="877000" />
+      <workItem from="1565316575512" duration="1811000" />
+      <workItem from="1565318616518" duration="10846000" />
+      <workItem from="1565570799076" duration="3000" />
+      <workItem from="1565570934899" duration="112000" />
+      <workItem from="1565577913881" duration="11193000" />
+      <workItem from="1565656265697" duration="11532000" />
+      <workItem from="1565742679677" duration="13782000" />
+      <workItem from="1565829059143" duration="8830000" />
+      <workItem from="1566261823244" duration="4607000" />
+      <workItem from="1566276606574" duration="4450000" />
+      <workItem from="1566347782434" duration="11339000" />
+      <workItem from="1566433962350" duration="13410000" />
+      <workItem from="1566520647212" duration="4205000" />
+      <workItem from="1566779619161" duration="5301000" />
+      <workItem from="1566894797549" duration="752000" />
+      <workItem from="1566952913676" duration="19523000" />
+      <workItem from="1567040162412" duration="2923000" />
+      <workItem from="1567125540665" duration="708000" />
+      <workItem from="1567134032691" duration="1803000" />
+      <workItem from="1567384718766" duration="5487000" />
+      <workItem from="1567470790047" duration="13971000" />
+      <workItem from="1567557284602" duration="12562000" />
+      <workItem from="1567643851095" duration="6972000" />
+      <workItem from="1567730141647" duration="606000" />
+      <workItem from="1567734750068" duration="66000" />
+      <workItem from="1567995501804" duration="6914000" />
+      <workItem from="1568075625102" duration="582000" />
+      <workItem from="1568687370750" duration="676000" />
+      <workItem from="1568767829101" duration="21063000" />
+      <workItem from="1568795221358" duration="3555000" />
+      <workItem from="1568853236964" duration="13140000" />
+      <workItem from="1568939577424" duration="2964000" />
+      <workItem from="1568946303636" duration="3638000" />
+      <workItem from="1569224402434" duration="1759000" />
+      <workItem from="1569285296212" duration="1187000" />
+      <workItem from="1569313622750" duration="694000" />
+      <workItem from="1569392639961" duration="1091000" />
+      <workItem from="1569569020127" duration="3043000" />
+      <workItem from="1569744764413" duration="23000" />
+      <workItem from="1569744860221" duration="791000" />
+      <workItem from="1569803784208" duration="104000" />
+      <workItem from="1570584830322" duration="2141000" />
+      <workItem from="1570847403168" duration="12227000" />
+      <workItem from="1571014399646" duration="610000" />
+      <workItem from="1571193224741" duration="2514000" />
+      <workItem from="1571195847977" duration="186000" />
+      <workItem from="1571196431144" duration="5456000" />
+      <workItem from="1571213194524" duration="694000" />
+      <workItem from="1571367931344" duration="678000" />
+      <workItem from="1571995375187" duration="43000" />
+      <workItem from="1572222829091" duration="595000" />
+      <workItem from="1572935038896" duration="37000" />
+      <workItem from="1573001611992" duration="4230000" />
+      <workItem from="1573009796034" duration="1496000" />
+      <workItem from="1573023898143" duration="2529000" />
+      <workItem from="1574297642509" duration="4468000" />
+      <workItem from="1574311334812" duration="10183000" />
+      <workItem from="1574383819305" duration="9666000" />
+      <workItem from="1574642069841" duration="18517000" />
+      <workItem from="1574728604294" duration="11533000" />
+      <workItem from="1574815936031" duration="8490000" />
+      <workItem from="1574834706244" duration="7052000" />
+      <workItem from="1574901368769" duration="4995000" />
+      <workItem from="1574910443630" duration="550000" />
+      <workItem from="1574929237988" duration="29000" />
+      <workItem from="1575273855834" duration="610000" />
+      <workItem from="1575421561113" duration="156000" />
+      <workItem from="1575442471158" duration="163000" />
+      <workItem from="1575449812879" duration="397000" />
+      <workItem from="1576054889912" duration="1923000" />
+      <workItem from="1576110811513" duration="8306000" />
+      <workItem from="1577240994515" duration="4481000" />
+      <workItem from="1577669369972" duration="327000" />
+      <workItem from="1577669790889" duration="12000" />
+      <workItem from="1577753539172" duration="2821000" />
+      <workItem from="1578556449513" duration="1644000" />
+      <workItem from="1578560547168" duration="629000" />
+      <workItem from="1578616873292" duration="3477000" />
+      <workItem from="1578641772937" duration="2477000" />
+      <workItem from="1578875843809" duration="11268000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="406331000" />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4936351" weight="0.29490617" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Designer" order="2" />
+      <window_info id="Image Layers" order="3" />
+      <window_info id="Capture Tool" order="4" />
+      <window_info id="UI Designer" order="5" />
+      <window_info id="Favorites" order="6" side_tool="true" weight="0.3297587" />
+      <window_info id="Web" order="7" side_tool="true" weight="0.3297587" />
+      <window_info id="JRebel" order="8" sideWeight="0.50636494" side_tool="true" weight="0.1621984" />
+      <window_info anchor="bottom" id="Inspection Results" order="0" weight="0.32956153" />
+      <window_info anchor="bottom" id="MyBatis Log" order="1" weight="0.32956153" />
+      <window_info anchor="bottom" id="Tail" order="2" />
+      <window_info anchor="bottom" id="JRebel Executor" order="3" weight="0.60113156" />
+      <window_info anchor="bottom" id="Message" order="4" />
+      <window_info anchor="bottom" id="Find" order="5" weight="0.3026874" />
+      <window_info anchor="bottom" id="Run" order="6" sideWeight="0.49932975" weight="0.49222064" />
+      <window_info anchor="bottom" id="Cvs" order="7" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="8" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="9" weight="0.32956153" />
+      <window_info anchor="bottom" id="Debug" order="10" sideWeight="0.49463806" weight="0.3493635" />
+      <window_info anchor="bottom" id="FindBugs-IDEA" order="11" sideWeight="0.4966488" weight="0.62234795" />
+      <window_info anchor="bottom" id="Application Servers" order="12" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Spring" order="13" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Terminal" order="14" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Docker" order="15" show_stripe_button="false" />
+      <window_info anchor="bottom" id="CheckStyle" order="16" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Event Log" order="17" sideWeight="0.5053619" side_tool="true" weight="0.52758133" />
+      <window_info anchor="bottom" id="Problems" order="18" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Java Enterprise" order="19" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Database Changes" order="20" />
+      <window_info anchor="bottom" id="Version Control" order="21" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Messages" order="22" sideWeight="0.49798927" weight="0.63366336" />
+      <window_info anchor="bottom" id="Apicloud Log" order="23" />
+      <window_info anchor="right" id="Word Book" order="0" side_tool="true" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Maven" order="3" weight="0.19571045" />
+      <window_info anchor="right" id="Palette" order="4" />
+      <window_info anchor="right" id="Capture Analysis" order="5" />
+      <window_info anchor="right" id="Key Promoter X" order="6" weight="0.3293092" />
+      <window_info anchor="right" id="Ant Build" order="7" weight="0.25" />
+      <window_info anchor="right" id="Database" order="8" weight="0.3297587" />
+      <window_info anchor="right" id="Palette&#9;" order="9" />
+      <window_info anchor="right" id="Theme Preview" order="10" />
+      <window_info anchor="right" id="JRebel Setup Guide" order="11" weight="0.3297587" />
+      <window_info anchor="right" id="JRebel Console" order="12" sideWeight="0.5033512" weight="0.32908848" />
+    </layout>
+    <layout-to-restore>
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4936351" weight="0.29490617" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Designer" order="2" />
+      <window_info id="Image Layers" order="3" />
+      <window_info id="Capture Tool" order="4" />
+      <window_info id="UI Designer" order="5" />
+      <window_info id="Favorites" order="6" side_tool="true" weight="0.3297587" />
+      <window_info id="Web" order="7" side_tool="true" weight="0.3297587" />
+      <window_info id="JRebel" order="8" sideWeight="0.50636494" side_tool="true" weight="0.1621984" />
+      <window_info anchor="bottom" id="Inspection Results" order="0" weight="0.32956153" />
+      <window_info anchor="bottom" id="MyBatis Log" order="1" weight="0.32956153" />
+      <window_info anchor="bottom" id="Tail" order="2" />
+      <window_info anchor="bottom" id="JRebel Executor" order="3" weight="0.60113156" />
+      <window_info anchor="bottom" id="Message" order="4" />
+      <window_info anchor="bottom" id="Find" order="5" weight="0.3026874" />
+      <window_info anchor="bottom" id="Run" order="6" sideWeight="0.49932975" weight="0.49222064" />
+      <window_info anchor="bottom" id="Cvs" order="7" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="8" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="9" weight="0.32956153" />
+      <window_info anchor="bottom" id="Debug" order="10" sideWeight="0.49463806" visible="true" weight="0.3493635" />
+      <window_info anchor="bottom" id="FindBugs-IDEA" order="11" sideWeight="0.4966488" weight="0.62234795" />
+      <window_info anchor="bottom" id="Application Servers" order="12" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Spring" order="13" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Terminal" order="14" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Docker" order="15" show_stripe_button="false" />
+      <window_info anchor="bottom" id="CheckStyle" order="16" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Event Log" order="17" sideWeight="0.5053619" side_tool="true" weight="0.52758133" />
+      <window_info anchor="bottom" id="Problems" order="18" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Java Enterprise" order="19" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Database Changes" order="20" />
+      <window_info anchor="bottom" id="Version Control" order="21" sideWeight="0.49932975" weight="0.32956153" />
+      <window_info anchor="bottom" id="Messages" order="22" sideWeight="0.49798927" weight="0.63366336" />
+      <window_info anchor="bottom" id="Apicloud Log" order="23" />
+      <window_info anchor="right" id="Word Book" order="0" side_tool="true" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Maven" order="3" weight="0.19571045" />
+      <window_info anchor="right" id="Palette" order="4" />
+      <window_info anchor="right" id="Capture Analysis" order="5" />
+      <window_info anchor="right" id="Key Promoter X" order="6" weight="0.3293092" />
+      <window_info anchor="right" id="Ant Build" order="7" weight="0.25" />
+      <window_info anchor="right" id="Database" order="8" weight="0.3297587" />
+      <window_info anchor="right" id="Palette&#9;" order="9" />
+      <window_info anchor="right" id="Theme Preview" order="10" />
+      <window_info anchor="right" id="JRebel Setup Guide" order="11" weight="0.3297587" />
+      <window_info anchor="right" id="JRebel Console" order="12" sideWeight="0.5033512" weight="0.32908848" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory">
+        <watch expression="((ComboPooledDataSource)jdbcTemplate.dataSource).dmds" custom="com.mchange.v2.c3p0.ComboPooledDataSource" />
+        <watch expression="sql" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="XPathView.XPathProjectComponent">
+    <history />
+    <find-history />
+  </component>
+  <component name="antWorkspaceConfiguration">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="FILTER_TARGETS" value="false" />
+  </component>
+  <component name="debuggerHistoryManager">
+    <expressions id="setValue">
+      <expression>
+        <expression-string>&quot;select vt_name from (SELECT distinct id,REGEXP_SUBSTR(clzs, '[^,]+', 1, LEVEL, 'i') AS clzs FROM tb_clz_user CONNECT BY LEVEL &lt;= LENGTH(clzs) - LENGTH(REGEXP_REPLACE(clzs, ',', ''))+1) u,tb_clz c where u.clzs=c.id and u.id=null order by c.id desc&quot;</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="jar://E:/repo/org/springframework/spring-web/4.2.4.RELEASE/spring-web-4.2.4.RELEASE-sources.jar!/org/springframework/web/context/ContextLoaderListener.java" />
+    <entry file="file://$PROJECT_DIR$/src/mvc/listener/SystemInitLister.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="595">
+          <caret line="43" column="22" selection-start-line="43" selection-start-column="22" selection-end-line="43" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/service/GisService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="595">
+          <caret line="68" column="35" selection-start-line="68" selection-start-column="30" selection-end-line="68" selection-end-column="35" />
+          <folding>
+            <element signature="e#1027#1028#0" expanded="true" />
+            <element signature="e#1053#1054#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/service/DailySupervisionServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="595">
+          <caret line="124" column="64" selection-start-line="124" selection-start-column="64" selection-end-line="124" selection-end-column="64" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://E:/java/jdk1.8.0_131/src.zip!/java/util/stream/Collectors.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="219">
+          <caret line="103" column="19" selection-start-line="103" selection-start-column="19" selection-end-line="103" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/service/JmsListener.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="76">
+          <caret line="7" column="51" selection-start-line="7" selection-start-column="36" selection-end-line="7" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://E:/repo/apache-lang/commons-lang/2.1/commons-lang-2.1.jar!/org/apache/commons/lang/StringUtils.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="436">
+          <caret line="692" lean-forward="true" selection-start-line="692" selection-end-line="692" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://E:/java/jdk1.8.0_131/src.zip!/java/util/List.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="172">
+          <caret line="355" column="12" selection-start-line="355" selection-start-column="12" selection-end-line="355" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://E:/java/jdk1.8.0_131/src.zip!/java/lang/String.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="2449" column="25" selection-start-line="2449" selection-start-column="25" selection-end-line="2449" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/filter/Router.java.r14171" />
+    <entry file="file://$PROJECT_DIR$/src/mvc/controllers/LetterManagementAction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3477">
+          <caret line="183" column="47" selection-start-line="183" selection-start-column="47" selection-end-line="183" selection-end-column="47" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://E:/repo/org/springframework/spring-web/4.2.4.RELEASE/spring-web-4.2.4.RELEASE.jar!/org/springframework/web/bind/annotation/support/HandlerMethodInvoker.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="112">
+          <caret line="156" selection-start-line="156" selection-end-line="156" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/helper/DownloadAct.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="122" selection-start-line="122" selection-end-line="122" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/controllers/mapAction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="219">
+          <caret line="49" column="32" selection-start-line="49" selection-start-column="22" selection-end-line="49" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/service/mapServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1406">
+          <caret line="130" column="10" selection-start-line="130" selection-start-column="10" selection-end-line="130" selection-end-column="10" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3135">
+          <caret line="165" column="29" selection-start-line="165" selection-start-column="25" selection-end-line="165" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/mapper/bikeMapper.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/controllers/BasicDataAction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="703">
+          <caret line="48" selection-start-line="48" selection-end-line="48" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/service/ConsumerService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="304">
+          <caret line="16" column="51" selection-start-line="16" selection-start-column="51" selection-end-line="16" selection-end-column="51" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/messages_zh_CN.properties">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/log4j.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="619">
+          <caret line="81" selection-start-line="81" selection-end-line="81" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/mybatis-config.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/jdbc.properties">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/config.properties">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/spring/applicationContext-db-myBatis.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/spring/applicationContext-db.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/spring/applicationContext.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="18" selection-start-line="18" selection-end-line="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/spring/applicationContext-activemq.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="258">
+          <caret line="31" column="64" lean-forward="true" selection-start-line="31" selection-start-column="64" selection-end-line="31" selection-end-column="64" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/spring/applicationContext-mvc.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="244">
+          <caret line="39" column="78" selection-start-line="39" selection-start-column="78" selection-end-line="39" selection-end-column="78" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/robots.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/precache-manifest.670c1955e590d23206d2a28476254d6e.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2972" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/manifest.json">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/favicon.ico">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/META-INF/MANIFEST.MF">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/js/jquery-1.12.4.min.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/db/hibernate-mysql.cfg.bak.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-435" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/db/hibernate-mysql.cfg.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-416" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/db/hibernate.reveng.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="2575" selection-start-column="2575" selection-end-column="2575" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/service-worker.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/WEB-INF/web.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="923">
+          <caret line="49" column="22" selection-start-line="49" selection-start-column="22" selection-end-line="49" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/helper/ExcelUtilHB.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-512">
+          <caret line="5" column="50" selection-start-line="5" selection-start-column="50" selection-end-line="5" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/filter/Router.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="760">
+          <caret line="53" column="58" selection-start-line="53" selection-start-column="58" selection-end-line="53" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/service/BasicDataService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="456">
+          <caret line="35" column="38" selection-start-line="35" selection-start-column="36" selection-end-line="35" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/service/LetterManagementService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8626">
+          <caret line="463" column="55" selection-start-line="463" selection-start-column="55" selection-end-line="463" selection-end-column="55" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/controllers/QueryAnalysisAction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="336">
+          <caret line="156" column="40" selection-start-line="156" selection-start-column="40" selection-end-line="156" selection-end-column="40" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/controllers/CommonAction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="348">
+          <caret line="32" column="37" lean-forward="true" selection-start-line="32" selection-start-column="37" selection-end-line="32" selection-end-column="37" />
+          <folding>
+            <element signature="e#560#561#0" expanded="true" />
+            <element signature="e#587#588#0" expanded="true" />
+            <element signature="e#659#660#0" expanded="true" />
+            <element signature="e#700#701#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/controllers/DataStatisticsAction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="372">
+          <caret line="134" column="61" lean-forward="true" selection-start-line="134" selection-start-column="61" selection-end-line="134" selection-end-column="61" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/service/QueryAnalysisService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="439">
+          <caret line="51" column="23" lean-forward="true" selection-start-line="51" selection-start-column="7" selection-end-line="51" selection-end-column="23" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/service/DataStatisticsService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="211">
+          <caret line="697" column="10" selection-start-line="697" selection-start-column="10" selection-end-line="697" selection-end-column="10" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mvc/service/CommonServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-227">
+          <caret line="103" column="73" selection-start-line="103" selection-start-column="56" selection-end-line="103" selection-end-column="73" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <settings>
+          <artifact-editor />
+          <last-edited>subcenters:war exploded</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="FacetStructureConfigurable.UI">
+        <settings>
+          <last-edited>Spring</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="GlobalLibrariesConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="JdkListConfigurable.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ModuleStructureConfigurable.UI">
+        <settings>
+          <last-edited>subcenters</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+                <option value="0.5" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectJDKs.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>Maven: antlr:antlr:2.7.6</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>

@@ -1,0 +1,407 @@
+package mvc.service;
+
+import helper.JacksonUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author: xianlehuang
+ * @Description:查询分析
+ * @date: 2019/8/8 - 9:53
+ */
+@Service
+public class QueryAnalysisService {
+    @Autowired
+    protected JdbcTemplate jdbcTemplate;
+    private JacksonUtil jacksonUtil = JacksonUtil.buildNormalBinder();
+
+    //速度曲线报表
+    public String findSpeedCurve(HttpServletRequest request) {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        String limit=request.getParameter("limit");
+        String vehicle=request.getParameter("vehicle");
+        String riqi=startTime.substring(2, 4)+startTime.substring(5, 7);
+        String tj="";
+        if(startTime!=null&&!startTime.isEmpty()&&!startTime.equals("null")&&startTime.length()>0){
+            tj +=" and t.db_time >=to_date('"+startTime+"','yyyy-mm-dd hh24:mi:ss')";
+        }
+        if(endTime!=null&&!endTime.isEmpty()&&!endTime.equals("null")&&endTime.length()>0){
+            tj +=" and t.db_time >=to_date('"+endTime+"','yyyy-mm-dd hh24:mi:ss')";
+        }
+        if(limit!=null&&!limit.isEmpty()&&!limit.equals("null")&&limit.length()>0){
+            tj +=" and t.speed <= "+limit;
+        }
+        if(vehicle!=null&&!vehicle.isEmpty()&&!vehicle.equals("null")&&vehicle.length()>0){
+            tj +=" and t.vehicle_num='"+vehicle+"'";
+        }
+        String sql = "select t.* from TB_GPS_"+riqi+"@db69 t ,VW_VEHICLE@db69 v" +
+                " where t.vehicle_num=v.vehi_no";
+        sql +=tj;
+        sql +=" order by t.db_time desc";
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        if(list!=null){
+            for (int i = 0; i <list.size() ; i++) {
+                int fx=Integer.parseInt(String.valueOf(list.get(i).get("DIRECTION")));
+                String fx1=null;
+                if(fx==0||fx==360){
+                    fx1 ="正北";
+                }else if(fx==90){
+                    fx1 ="正东";
+                }else if(fx==180){
+                    fx1 ="正南";
+                }else if(fx==270){
+                    fx1 ="正西";
+                }else if(fx>0&&fx<90){
+                    fx1 ="东北";
+                }else if(fx>90&&fx<180){
+                    fx1 ="东南";
+                }else if(fx>180&&fx<270){
+                    fx1 ="西南";
+                }else if(fx>270&&fx<360){
+                    fx1 ="西北";
+                }
+                list.get(i).put("DIRECTION",fx1);
+                if(String.valueOf(list.get(i).get("STATE")).equals("1")){
+                    list.get(i).put("STATE","重车");
+                }else if(String.valueOf(list.get(i).get("STATE")).equals("0")){
+                    list.get(i).put("STATE","空车");
+                }
+                list.get(i).put("DB_TIME",list.get(i).get("DB_TIME")==null?"":String.valueOf(list.get(i).get("DB_TIME")).substring(0,19));
+            }
+        }
+        return jacksonUtil.toJson(list);
+    }
+
+    //营运记录查询
+    public String findOperationRecord(HttpServletRequest request) {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        String company=request.getParameter("company");
+        String vehicle=request.getParameter("vehicle");
+        Integer currentPage=Integer.parseInt(request.getParameter("currentPage"));
+        Integer pageSize=Integer.parseInt(request.getParameter("pageSize"));
+        String riqi=startTime.substring(0, 4)+startTime.substring(5, 7);
+        String tj="";
+        if(startTime!=null&&!startTime.isEmpty()&&!startTime.equals("null")&&startTime.length()>0){
+            tj +=" and b.SHANGCHE >=to_date('"+startTime+"','yyyy-mm-dd hh24:mi:ss')";
+        }
+        if(endTime!=null&&!endTime.isEmpty()&&!endTime.equals("null")&&endTime.length()>0){
+            tj +=" and b.SHANGCHE >=to_date('"+endTime+"','yyyy-mm-dd hh24:mi:ss')";
+        }
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj +=" and c.ZGS = '"+company+"'";
+        }
+        if(vehicle!=null&&!vehicle.isEmpty()&&!vehicle.equals("null")&&vehicle.length()>0){
+            tj +=" and c.cphm='"+vehicle+"'";
+        }
+        //用户能管理的公司
+        String comps=(String) ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps");
+        comps=comps==""?"''":comps;
+        tj +=" and c.ZGS in ("+comps+")";
+
+        String sql = " select (select count(1) from (select vhic from jjq"+riqi+"_1@jjq89 b,jjq_company@jjq89 c" +
+                " where CONCAT('浙',b.vhic) = c.cphm and b.flag = '1000000000'";
+        sql += tj;
+        sql += ") ) as COUNT, tt.* from (select t.*,rownum as rn from (select" +
+                " CONCAT('浙',b.vhic) CPH," +
+                " c.ZGS, b.YINGYUN,to_char(b.SHANGCHE,'yyyy-mm-dd hh24:mi:ss') SCSJ,to_char(b.XIACHE,'yyyy-mm-dd hh24:mi:ss') XCSJ," +
+                " abs(ROUND(to_number(b.SHANGCHE - b.XIACHE)*24*60)) YYSJ,round(to_number(b.JICHENG)/10,2) ZKLC,round(to_number(b.KONGSHI)/10,2) KCLC," +
+                " (substr(denghou,1,2)*60*60+substr(denghou,3,2)*60+substr(denghou,5,2)) DHSJ,b.JIAOYITYPE,round(to_number(b.JINE)/100,2) YYJE" +
+                " from jjq"+riqi+"_1@jjq89 b,jjq_company@jjq89 c where CONCAT('浙',b.vhic) = c.cphm and b.flag = '1000000000'";
+        sql += tj;
+        sql += " order by b.SHANGCHE desc) t  where rownum <= "+(currentPage*pageSize);
+        sql += ") tt where tt.rn >"+((currentPage-1)*pageSize);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        if(list!=null&&list.size()>0){
+            map.put("count",list.get(0).get("COUNT"));
+        }else{
+            map.put("count",0);
+        }
+        map.put("datas",list);
+        return jacksonUtil.toJson(map);
+    }
+
+    //营运数据统计
+    public String findOperationDataStatistics(HttpServletRequest request) {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        String company=request.getParameter("company");
+        String vehicle=request.getParameter("vehicle");
+        Integer currentPage=Integer.parseInt(request.getParameter("currentPage"));
+        Integer pageSize=Integer.parseInt(request.getParameter("pageSize"));
+        String riqi=startTime.substring(0, 4)+startTime.substring(5, 7);
+        String tj="";
+        if(startTime!=null&&!startTime.isEmpty()&&!startTime.equals("null")&&startTime.length()>0){
+            tj += " and DAY >='"+startTime.replaceAll("-","")+"'";
+        }
+        if(endTime!=null&&!endTime.isEmpty()&&!endTime.equals("null")&&endTime.length()>0){
+            tj += " and DAY <='"+endTime.replaceAll("-","")+"'";
+        }
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj +=" and ZGS = '"+company+"'";
+        }
+        if(vehicle!=null&&!vehicle.isEmpty()&&!vehicle.equals("null")&&vehicle.length()>0){
+            tj +=" and CONCAT('浙',CPHM)='"+vehicle+"'";
+        }
+        //用户能管理的公司
+        String comps=(String) ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps");
+        comps=comps==""?"''":comps;
+        tj +=" and ZGS in ("+comps+")";
+
+        String sql = " select (select count(distinct j.CPHM) from jjq_tj_"+riqi+"_day@jjq89 j where j.type = 5 ";
+        sql += tj;
+        sql += " ) as COUNT, tt.* from (select t.*, rownum as rn from (select" +
+                " v.VEHI_SIM,CONCAT('浙',j.CPHM) CPHM, j.ZGS, sum(j.tjcs) as YYCS, sum(j.jine) as YYJE, ceil(sum(j.zlc)) as ZLC, ceil(sum(j.kslc)) as KSLC," +
+                " ceil(sum(j.szlc)) as ZKLC,ceil(sum(j.YSSC)) as ZKSJ, ceil(sum(j.dhsj)) as ZKDHSJ," +
+                " CONCAT(round(decode(sum(j.zlc),0,0,sum(j.szlc) / sum(j.zlc))*100, 2), '%') SZL" +
+                " from jjq_tj_"+riqi+"_day@jjq89 j" +
+                " left join vw_vehicle@db69 v on v.vehi_no=CONCAT('浙',j.CPHM)" +
+                " where type = 5";
+        sql += tj;
+        sql += " group by v.VEHI_SIM, j.CPHM, j.ZGS order by j.CPHM) t " +
+                " where rownum <= "+(currentPage*pageSize);
+        sql += ") tt where tt.rn >"+((currentPage-1)*pageSize);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        if(list!=null&&list.size()>0){
+            map.put("count",list.get(0).get("COUNT"));
+        }else{
+            map.put("count",0);
+        }
+        map.put("datas",list);
+        return jacksonUtil.toJson(map);
+    }
+
+    //营运日报
+    public String findOperatingDaily(HttpServletRequest request) {
+        String time=request.getParameter("time");
+        String company=request.getParameter("company");
+        String tj="";
+        if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0){
+            tj += " and db_time>=to_date('"+time+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time<=to_date('"+time+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+        }
+        //用户能管理的公司
+        String comps=(String) ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps");
+        comps=comps==""?"''":comps;
+        tj +=" and ba_name in ("+comps+")";
+
+        String sql="";
+        int vehicle_count = 0;
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj +=" and ba_name = '"+company+"'";
+            vehicle_count = jdbcTemplate.queryForObject("select count(*) COUNT from VW_VEHICLE@db69 where comp_name = '"+company+"' and comp_name in ("+comps+")",Integer.class);
+            sql +="select * from TB_TAXI_DAY@db69 where 1=1";
+            sql += tj;
+            sql += " order by db_time desc";
+        }else{
+            int count = jdbcTemplate.queryForObject("select count(*) COUNT from TB_BUSI_AREA@db69 a,TB_COMPANY@db69 c where a.ba_id=c.ba_id  and ba_name in ("+comps+")",Integer.class);
+            vehicle_count = jdbcTemplate.queryForObject("select count(*) COUNT from VW_VEHICLE@db69 where  comp_name in ("+comps+")",Integer.class);
+            sql="select db_time,sum(run_taxis) run_taxis,round(sum(run_times)/"+count+",2) run_times, " +
+                    "round(sum(run_profit)/"+count+",2) run_profit ,round(sum(rtrim(actual_load_rate,'%'))/"+count+",2) actual_load_rate," +
+                    "round(sum(run_time)/"+count+",2) run_time, round(sum(waitting_time)/"+count+",2) waitting_time," +
+                    "round(sum(actual_load_mileage)/"+count+",2) actual_load_mileage," +
+                    "round(sum(no_load_mileage)/"+count+",2) no_load_mileage " +
+                    "from (select trunc(db_time,'hh') db_time,run_taxis,run_times,run_profit ,actual_load_rate," +
+                    "run_time,waitting_time,actual_load_mileage,no_load_mileage from" +
+                    " TB_TAXI_DAY@db69 t where 1=1 ";
+            sql += tj;
+            sql+=") group by db_time  order by db_time desc";
+        }
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        for (int i = 0; i < list.size(); i++) {
+            list.get(i).put("DB_TIME",list.get(i).get("DB_TIME")==null?"":list.get(i).get("DB_TIME").toString().substring(0,19));
+            list.get(i).put("REPORE_VHIC",vehicle_count);
+            list.get(i).put("RUN_RATE",list.get(i).get("RUN_TAXIS")== null?"0%":Integer.parseInt(list.get(i).get("RUN_TAXIS").toString())*100/vehicle_count+"%");
+        }
+        return jacksonUtil.toJson(list);
+    }
+
+    //营运月报
+    public String findOperatingMonthlyReport(HttpServletRequest request) {
+        String time=request.getParameter("time");
+        String company=request.getParameter("company");
+        String tj="";
+        if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0){
+            tj += " and report_time like '%"+time.replace("-","")+"%'";
+        }
+        //用户能管理的公司
+        String comps=(String) ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps");
+        comps=comps==""?"''":comps;
+        tj +=" and ba_anme in ("+comps+")";
+
+        String sql="";
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj +=" and ba_anme = '"+company+"'";
+            sql +="select * from TB_TAXI_MONTHLY@db69 where 1=1";
+            sql += tj;
+            sql += " order by report_time desc";
+        }else{
+            int count = Integer.parseInt(jdbcTemplate.queryForList("select count(*) COUNT from TB_BUSI_AREA@db69 a,TB_COMPANY@db69 c where a.ba_id=c.ba_id and ba_name in ("+comps+")").get(0).get("COUNT").toString());
+            sql="select report_time,sum(repore_vhic) repore_vhic," +
+                    "sum(repore_no) repore_no,sum(repore_vhicno) repore_vhicno," +
+                    "round(sum(REPORE_TURNOVER)/"+count+",0) REPORE_TURNOVER," +
+                    "round(sum(rtrim(REPORE_RADE,'%'))/"+count+",2) REPORE_RADE," +
+                    "round(sum(REPORE_AMOUNT_REVENUE)/"+count+",0) REPORE_AMOUNT_REVENUE," +
+                    "round(sum(rtrim(REPORE_ACTUAL_LOADING,'%'))/"+count+",2) REPORE_ACTUAL_LOADING," +
+                    "round(sum(REPORE_CAR_TIME)/"+count+",2) REPORE_CAR_TIME," +
+                    "round(sum(REPROE_REVENUE_TIME)/"+count+",2) REPROE_REVENUE_TIME," +
+                    "round(sum(REPORE_WAIT_TIME)/"+count+",2) REPORE_WAIT_TIME," +
+                    "round(sum(REPORE_MILEAGE)/"+count+",2) REPORE_MILEAGE," +
+                    "round(sum(REPORE_ACTUAL_MILEAGE)/"+count+",2) REPORE_ACTUAL_MILEAGE," +
+                    "round(sum(REPORE_EMPTY_MILEAGE)/"+count+",2) REPORE_EMPTY_MILEAGE" +
+                    " from TB_TAXI_MONTHLY@db69 t where 1=1 " ;
+            sql += tj;
+            sql+=" group by report_time order by report_time desc";
+        }
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        for (int i = 0; i < list.size(); i++) {
+            list.get(i).put("REPORE_RUN_RATE",(list.get(i).get("REPORE_VHIC")==null||list.get(i).get("REPORE_VHICNO")==null)?"0%":Integer.parseInt(list.get(i).get("REPORE_VHIC").toString())*100/Integer.parseInt(list.get(i).get("REPORE_VHICNO").toString())+"%");
+        }
+        return jacksonUtil.toJson(list);
+    }
+    //违章查询
+    public String findViolation(HttpServletRequest request) {
+        String company=request.getParameter("company");
+        String tj="";
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj+=" and b.COM_NAME = '"+company+"'";
+        }
+        //用户能管理的公司
+        String comps=(String) ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps");
+        comps=comps==""?"''":comps;
+        tj +=" and b.COM_NAME in ("+comps+")";
+
+        String sql = "select b.COM_NAME,b.IC_SCORE ,t.* from (select "
+                + "replace(b.AUTO_NUM, '.', '') AUTO_NUM,count(b.AUTO_NUM) as count1 from (select ti.*,gv.AREA_NAME from tb_global_vehicle@DB69 gv,TB_TAXI_ILLEGAL_INFO_OUT@DB69 ti where REPLACE(ti.AUTO_NUM,'.','')=gv.plate_number and gv.industry=090 and gv.business_scope_code = 1400  AND gv.STATUS_NAME='营运' AND ti.AUTO_NUM LIKE '浙A%') b where 1=1 ";
+        sql += tj;
+        sql +="  group by b.AUTO_NUM";
+        sql += " ) t left join ( select b.id,b.AUTO_NUM,b.COM_NAME ,b.IC_SCORE from (select ti.*,gv.AREA_NAME, row_number() over (partition by ti.AUTO_NUM  order by ti.id desc) as rnum from tb_global_vehicle@DB69 gv,TB_TAXI_ILLEGAL_INFO_OUT@DB69 ti where REPLACE(ti.AUTO_NUM,'.','')=gv.plate_number and gv.industry=090 and gv.business_scope_code = 1400  AND gv.STATUS_NAME='营运' AND ti.AUTO_NUM LIKE '浙A%') b where rnum = 1"
+                + " ) b on replace(b.AUTO_NUM, '.', '')=t.AUTO_NUM ";
+
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        return jacksonUtil.toJson(list);
+    }
+    //投诉查询
+    public String findComplaintInquiry(HttpServletRequest request) {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        String type=request.getParameter("type");
+        Integer currentPage=Integer.parseInt(request.getParameter("currentPage"));
+        Integer pageSize=Integer.parseInt(request.getParameter("pageSize"));
+        String tj="";
+        if(type != null&&!type.isEmpty()&&type.length()>0&&!type.equals("")){
+            tj += "and BUSINESS_ITEMTYPE_NAME like '%"+type+"%'";
+        }
+        if(startTime != null&&!startTime.isEmpty()&&startTime.length()>0&&!startTime.equals("")){
+            tj += "and ACCEPT_TIME >= to_date('"+startTime+" 00:00:00','yyyy-mm-dd hh24:mi:ss')";
+        }
+        if(endTime != null&&!endTime.isEmpty()&&endTime.length()>0&&!endTime.equals("")){
+            tj += "and ACCEPT_TIME <= to_date('"+endTime+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+        }
+        String sql = " select (select count(*) from global_complaint_12328@DB69 c where 1 = 1 ";
+        sql += tj;
+        sql += " ) as COUNT,tt.* from(select t.*,rownum as rn from (select CALL_NAME, BUSINESS_ITEMTYPE_NAME, CALLER_ID, VEHICLE_PLATE_NUMBER, BUSINESS_STATUS_NAME, ARCHIVE_TIME, ACCEPT_TIME from global_complaint_12328@DB69 c where 1=1 ";
+        sql += tj;
+        sql +=" order by ACCEPT_TIME desc) t  where rownum <= "+(currentPage*pageSize);
+        sql += ") tt where tt.rn >"+((currentPage-1)*pageSize);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        for (int i = 0; i < list.size(); i++) {
+            list.get(i).put("ARCHIVE_TIME",list.get(i).get("ARCHIVE_TIME")==null?"":list.get(i).get("ARCHIVE_TIME").toString().substring(0,19));
+            list.get(i).put("ACCEPT_TIME",list.get(i).get("ACCEPT_TIME")==null?"":list.get(i).get("ACCEPT_TIME").toString().substring(0,19));
+            list.get(i).put("BUSINESS_ITEMTYPE_NAME",list.get(i).get("BUSINESS_ITEMTYPE_NAME")==null?"":list.get(i).get("BUSINESS_ITEMTYPE_NAME").toString().replace("运管_客运_出租客运_", ""));
+        }
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        if(list!=null&&list.size()>0){
+            map.put("count",list.get(0).get("COUNT"));
+        }else{
+            map.put("count",0);
+        }
+        map.put("datas",list);
+        return jacksonUtil.toJson(map);
+    }
+    //维修记录查询
+    public String findMaintenanceRecord(HttpServletRequest request) {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        String area=request.getParameter("area");
+        String company=request.getParameter("company");
+        String vehicle=request.getParameter("vehicle");
+        Integer currentPage=Integer.parseInt(request.getParameter("currentPage"));
+        Integer pageSize=Integer.parseInt(request.getParameter("pageSize"));
+
+        String tj="";
+        if(vehicle!=null&&!vehicle.isEmpty()&&!vehicle.equals("null")&&vehicle.length()>0){
+            tj +=" and r.VEHI_NO='"+vehicle+"'";
+        }
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj +=" and v.COMP_NAME='"+company+"'";
+        }
+        if(area!=null&&!area.isEmpty()&&!area.equals("null")&&area.length()>0){
+            if(area.equals("主城区")){
+                tj += " and (g.AREA_NAME like '%上城%' or g.AREA_NAME like '%下城%' "
+                        + "or g.AREA_NAME like '%江干%' or g.AREA_NAME like '%拱墅%' "
+                        + "or g.AREA_NAME like '%下沙%' "
+                        + "or g.AREA_NAME like '%西湖%' or g.AREA_NAME like '%滨江%')";
+            } else {
+                tj += " and g.AREA_NAME like '%"+area+"%'";
+            }
+        }
+        if(startTime!=null&&!startTime.isEmpty()&&!startTime.equals("null")&&startTime.length()>0){
+            tj +=" and r.RR_TIME >=to_date('"+startTime+"','yyyy-MM-dd hh24:mi:ss')";
+        }
+        if(endTime!=null&&!endTime.isEmpty()&&!endTime.equals("null")&&endTime.length()>0){
+            tj +=" and r.RR_TIME <=to_date('"+endTime+"','yyyy-MM-dd hh24:mi:ss')";
+        }
+        //用户能管理的公司
+        String comps=(String) ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps");
+        comps=comps==""?"''":comps;
+        tj +=" and v.COMP_NAME in ("+comps+")";
+
+        String sql = "select (select count(*) from tb_repair_record@db69 r" +
+                " left join (SELECT distinct VEHI_NO VEHICLE_NO,VEHI_NUM,COMP_NAME,VEHI_SIM,HOME_TEL,NIGHT_TEL,OWN_NAME,MT_NAME,MDT_SUB_TYPE from VW_VEHICLE@db69) v on v.VEHICLE_NO=r.VEHI_NO" +
+                " left join TB_REPAIR_MALFUNCTION rm on r.rm_id=rm.rm_id " +
+                " left join tb_user@db69 us on r.user_id=us.user_id " +
+                " left join (select pj.*,us.user_name from TB_REPAIR_PHONE@db69 pj,(select user_id,user_name from tb_user@db69 union all select user_id,user_name from tb_user_wx@db69) us where pj.hfr=us.user_id) pj on r.rr_id=pj.rr_id " +
+                " left join TB_REPAIR_TYPE rt on r.rt_id=rt.rt_id " +
+                " left join TB_REPAIR_ADDR ra on r.ra_id=ra.ra_id  " +
+                " left join  (select plate_number,area_name from tb_global_vehicle where industry=090 and business_scope_code = 1400  AND STATUS_NAME='营运' AND PLATE_NUMBER LIKE '浙A%') g on r.vehi_no=g.plate_number " +
+                " where r.VEHI_NO <> ' '"+
+                " and r.rt_id is not null ";//和维修管理系统保持一致
+        ;
+        sql += tj;
+        sql += " ) count,tt.* from (select t.*,rownum as rn from(select v.*,r.*,rm.RM_MALFUNCTION GZLX, us.REAL_NAME,us.USER_NAME wxry,pj.hfjg,pj.hfr,pj.jfyy,pj.user_name ghao,rt.RT_TYPE,ra.RA_ADDR," +
+                "to_char(r.RR_TIME,'yyyy-MM-dd hh24:mi:ss') STIME,to_char(r.RR_TIME_END,'yyyy-MM-dd hh24:mi:ss') ETIME,case when r.RR_TIME_END>SYSDATE then '正在维修' else '已维修' end wxjd,g.area_name" +
+                " from tb_repair_record@db69 r" +
+                " left join (SELECT distinct VEHI_NO VEHICLE_NO,VEHI_NUM,COMP_NAME,VEHI_SIM,HOME_TEL,NIGHT_TEL,OWN_NAME,MT_NAME,MDT_SUB_TYPE from VW_VEHICLE@db69) v on v.VEHICLE_NO=r.VEHI_NO" +
+                " left join TB_REPAIR_MALFUNCTION rm on r.rm_id=rm.rm_id " +
+                " left join tb_user@db69 us on r.user_id=us.user_id " +
+                " left join (select pj.*,us.user_name from TB_REPAIR_PHONE@db69 pj,(select user_id,user_name from tb_user@db69 union all select user_id,user_name from tb_user_wx@db69) us where pj.hfr=us.user_id) pj on r.rr_id=pj.rr_id " +
+                " left join TB_REPAIR_TYPE rt on r.rt_id=rt.rt_id " +
+                " left join TB_REPAIR_ADDR ra on r.ra_id=ra.ra_id  " +
+                " left join  (select plate_number,area_name from tb_global_vehicle where industry=090 and business_scope_code = 1400  AND STATUS_NAME='营运' AND PLATE_NUMBER LIKE '浙A%') g on r.vehi_no=g.plate_number " +
+                " where r.VEHI_NO <> ' '"+
+                " and r.rt_id is not null ";//和维修管理系统保持一致
+        sql += tj;
+        sql += " order by r.RR_TIME desc) t where rownum <= "+(currentPage*pageSize);
+        sql += ")tt where tt.rn >"+((currentPage-1)*pageSize);
+        List<Map<String, Object>>list=jdbcTemplate.queryForList(sql);
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        if(list!=null&&list.size()>0){
+            map.put("count",list.get(0).get("COUNT"));
+        }else{
+            map.put("count",0);
+        }
+        map.put("datas",list);
+        return jacksonUtil.toJson(map);
+    }
+}

@@ -1,0 +1,433 @@
+package mvc.service;
+
+import helper.GeometryHandler;
+import helper.JacksonUtil;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletContextEvent;
+
+import mvc.cache.DataItem;
+import mvc.cache.GisData;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import com.vividsolutions.jts.geom.Geometry;
+
+@Service
+public class GisService {
+
+	protected JdbcTemplate jdbcTemplate = null;
+	protected JdbcTemplate jdbcTemplate2 = null;
+	protected Thread thread;
+	public JdbcTemplate getJdbcTemplate() {
+		return jdbcTemplate;
+	}
+
+	@Autowired
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
+
+	public JdbcTemplate getJdbcTemplate2() {
+		return jdbcTemplate2;
+	}
+
+	@Autowired
+	public void setJdbcTemplate2(JdbcTemplate jdbcTemplate2) {
+		this.jdbcTemplate2 = jdbcTemplate2;
+	}
+
+	private JacksonUtil jacksonUtil = JacksonUtil.buildNormalBinder();
+	private boolean exit_thread;
+
+	public String test() {
+		System.out.println(jdbcTemplate);
+		System.out.println(jdbcTemplate2);
+
+		return "ok";
+	}
+	//查询所有车辆信息
+	public List<Map<String, Object>> findAllVhic() {
+		String str="select v.vehi_no,v.ba_name,v.comp_name,v.mdt_no,v.vehi_sim,v.mdt_sub_type,s.px,s.py,s.stime,s.speed"
+				+ ",s.state,s.angle,s.carstate,s.alarmstatus,own_name,own_tel from vw_vehicle@db69 v left join tb_mdt_status@db69 s on v.vehi_id = s.vehi_id "
+				+ " order by vehi_no";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(str);
+		for (int i = 0; i < list.size(); i++) {
+			if(jisuan(String.valueOf(list.get(i).get("stime")))){
+				list.get(i).put("TYPE", "0");
+				if(String.valueOf(list.get(i).get("STATE")).equals("1")){
+					list.get(i).put("FX", utilFx(String.valueOf(list.get(i).get("ANGLE")),"z"));
+				}else{
+					list.get(i).put("FX", utilFx(String.valueOf(list.get(i).get("ANGLE")),"k"));
+				}
+			}else{
+				list.get(i).put("TYPE", "1");
+				list.get(i).put("FX", utilFx(String.valueOf(list.get(i).get("ANGLE")),"l"));
+			}
+		}
+		return list;
+	}
+	public String utilFx(String fx,String icon){
+		try {
+			if(Integer.parseInt(fx) == 0 ||Integer.parseInt(fx) == 360){
+				return icon + "1";
+			}else if(Integer.parseInt(fx) >0 &&Integer.parseInt(fx) <90){
+				return icon + "2";
+			}else if(Integer.parseInt(fx) == 90){
+				return icon + "3";
+			}else if(Integer.parseInt(fx) >90 &&Integer.parseInt(fx) <180){
+				return icon + "4";
+			}else if(Integer.parseInt(fx) == 180){
+				return icon + "5";
+			}else if(Integer.parseInt(fx) >180 &&Integer.parseInt(fx) <270){
+				return icon + "6";
+			}else if(Integer.parseInt(fx) == 270){
+				return icon + "7";
+			}else if(Integer.parseInt(fx) >270 &&Integer.parseInt(fx) <360){
+				return icon + "8";
+			}
+		} catch (Exception e) {
+			return icon + "1";
+		}
+		return icon + "1";
+	}
+	//计算车辆是否上线
+	public static boolean jisuan(String date1){ 
+		if(date1.equals("null")){
+			return false;
+		}
+		try {
+			 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		        double result=0;
+				try {
+					Date start = sdf.parse(date1);
+					Date end = new Date();
+					long cha = end.getTime() - start.getTime(); 
+					result = cha * 1.0 / (1000 * 60); 
+					
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				if(result<=30){ 
+					return true; 
+				}else{ 
+					return false; 
+				} 
+		} catch (Exception e) {
+			return false;
+		}
+    } 
+	//查询所有区域
+	public List<Map<String, Object>> findAllArea() {
+		String str="SELECT * FROM TB_UPDOWNAREA@db69";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(str);
+		String nums = "";
+		for(int i=0;i<list.size();i++){
+			nums = String.valueOf(list.get(i).get("ALARMNUM")).equals("null")?"10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;10;":list.get(i).get("ALARMNUM").toString();
+			for(int i1=0;i1<nums.split(";").length;i1++){
+				list.get(i).put("YJS", nums.split(";")[getybjnum()]+"");
+			}
+		}
+		return list;
+	}
+	//根据时间添加区域预警数
+	public int getybjnum(){
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+		//System.out.println(sdf.format(new Date()));
+		String t = sdf.format(new Date());
+		int a = timenum(t);
+		if(a==timenum("23:58")||a==timenum("23:59")||a==timenum("00:02")||a==timenum("00:01")){
+			return 0;
+		}else if(a>=timenum("00:03")&&a<=timenum("00:57")){
+			return 1;
+		}else if(a>=timenum("00:58")&&a<=timenum("01:02")){
+			return 2;
+		}else if(a>=timenum("01:03")&&a<=timenum("01:57")){
+			return 3;
+		}else if(a>=timenum("01:58")&&a<=timenum("02:02")){
+			return 4;
+		}else if(a>=timenum("02:03")&&a<=timenum("02:57")){
+			return 5;
+		}else if(a>=timenum("02:58")&&a<=timenum("03:02")){
+			return 6;
+		}else if(a>=timenum("03:03")&&a<=timenum("03:57")){
+			return 7;
+		}else if(a>=timenum("03:58")&&a<=timenum("04:02")){
+			return 8;
+		}else if(a>=timenum("04:03")&&a<=timenum("04:57")){
+			return 9;
+		}else if(a>=timenum("04:58")&&a<=timenum("05:02")){
+			return 10;
+		}else if(a>=timenum("05:03")&&a<=timenum("05:57")){
+			return 11;
+		}else if(a>=timenum("05:58")&&a<=timenum("06:02")){
+			return 12;
+		}else if(a>=timenum("06:03")&&a<=timenum("06:57")){
+			return 13;
+		}else if(a>=timenum("06:58")&&a<=timenum("07:02")){
+			return 14;
+		}else if(a>=timenum("07:03")&&a<=timenum("07:57")){
+			return 15;
+		}else if(a>=timenum("07:58")&&a<=timenum("08:02")){
+			return 16;
+		}else if(a>=timenum("08:03")&&a<=timenum("08:57")){
+			return 17;
+		}else if(a>=timenum("08:58")&&a<=timenum("09:02")){
+			return 18;
+		}else if(a>=timenum("09:03")&&a<=timenum("09:57")){
+			return 19;
+		}else if(a>=timenum("09:58")&&a<=timenum("10:02")){
+			return 20;
+		}else if(a>=timenum("10:03")&&a<=timenum("10:57")){
+			return 21;
+		}else if(a>=timenum("10:58")&&a<=timenum("11:02")){
+			return 22;
+		}else if(a>=timenum("11:03")&&a<=timenum("11:57")){
+			return 23;
+		}else if(a>=timenum("11:58")&&a<=timenum("12:02")){
+			return 24;
+		}else if(a>=timenum("12:03")&&a<=timenum("12:57")){
+			return 25;
+		}else if(a>=timenum("12:58")&&a<=timenum("13:02")){
+			return 26;
+		}else if(a>=timenum("13:03")&&a<=timenum("13:57")){
+			return 27;
+		}else if(a>=timenum("13:58")&&a<=timenum("14:02")){
+			return 28;
+		}else if(a>=timenum("14:03")&&a<=timenum("14:57")){
+			return 29;
+		}else if(a>=timenum("14:58")&&a<=timenum("15:02")){
+			return 30;
+		}else if(a>=timenum("15:03")&&a<=timenum("15:57")){
+			return 31;
+		}else if(a>=timenum("15:58")&&a<=timenum("16:02")){
+			return 32;
+		}else if(a>=timenum("16:03")&&a<=timenum("16:57")){
+			return 33;
+		}else if(a>=timenum("16:58")&&a<=timenum("17:02")){
+			return 34;
+		}else if(a>=timenum("17:03")&&a<=timenum("17:57")){
+			return 35;
+		}else if(a>=timenum("17:58")&&a<=timenum("18:02")){
+			return 36;
+		}else if(a>=timenum("18:03")&&a<=timenum("18:57")){
+			return 37;
+		}else if(a>=timenum("18:58")&&a<=timenum("19:02")){
+			return 38;
+		}else if(a>=timenum("19:03")&&a<=timenum("19:57")){
+			return 39;
+		}else if(a>=timenum("19:58")&&a<=timenum("20:02")){
+			return 40;
+		}else if(a>=timenum("20:03")&&a<=timenum("20:57")){
+			return 41;
+		}else if(a>=timenum("20:58")&&a<=timenum("21:02")){
+			return 42;
+		}else if(a>=timenum("21:03")&&a<=timenum("21:57")){
+			return 43;
+		}else if(a>=timenum("21:58")&&a<=timenum("22:02")){
+			return 44;
+		}else if(a>=timenum("22:03")&&a<=timenum("22:57")){
+			return 45;
+		}else if(a>=timenum("22:58")&&a<=timenum("23:02")){
+			return 46;
+		}else if(a>=timenum("23:03")&&a<=timenum("23:57")){
+			return 47;
+		}else{
+			return 0;
+		}
+	}
+	public int timenum(String arg){
+		return Integer.parseInt(arg.split(":")[0])*60+Integer.parseInt(arg.split(":")[1]);
+	}
+	public void stop(){
+		exit_thread = true;
+	}
+	public String task() {
+		exit_thread = false;
+		thread = new Thread() {
+			private List<Map<String, Object>> vehilist = new ArrayList<Map<String, Object>>();
+			private Map<String, Object> num = new HashMap<String, Object>();
+			private List<Map<String, Object>> arealist = new ArrayList<Map<String, Object>>();
+			private long sleepTime = 1000*60*25;//30000;
+
+			@Override
+			public void run() {
+				while (true && !exit_thread) {
+					int onnum = 0;
+					int offnum = 0;
+					int hnum = 0;
+					int nnum = 0;
+					System.out.println("执行---------------");
+					long startTime = System.currentTimeMillis();
+					vehilist = findAllVhic();//TODO jdbcTemplate2.queryForList("");
+//					for (int i = 0; i < vehilist.size(); i++) {
+//						Map<String, Object> va = vehilist.get(i);
+//						if (String.valueOf(va.get("PX")).equals("null")
+//								|| "0.0".equals(String.valueOf(va.get("PX")))
+//								|| "null".equals(String.valueOf(va.get("PY")))
+//								|| "0.0".equals(String.valueOf(va.get("PY")))) {
+//							offnum++;
+//						} else {
+//							if (va.get("TYPE").equals("0")) {
+//								onnum++;
+//								if (va.get("STATE").equals("0")) {
+//									nnum++;
+//								} else {
+//									hnum++;
+//								}
+//							} else {
+//								offnum++;
+//							}
+//						}
+//					}
+//					int total = vehilist.size();
+//					num.put("total", total);
+//					num.put("online", onnum);
+//					num.put("notOnline", offnum);
+//					num.put("heavyCar", hnum);
+//					num.put("emptyCar", nnum);
+					arealist = findAllArea();//TODO jdbcTemplate2.queryForList("");
+					
+//					for(int j=0;j<vehilist.size();j++){
+//						List<String> l = new ArrayList<String>();
+//						for(int k=0;k<arealist.size();k++){
+//							arealist.get(k).put("AREAVHIC", new ArrayList<String>());
+//							if(rectContains(vehilist.get(j), arealist.get(k))){
+//								l.add(String.valueOf(vehilist.get(j).get("VEHI_NO")));
+////								break;
+//							}
+//							arealist.get(k).put("AREAVHIC", l);
+//						}
+//					}
+//					for(int k=0;k<arealist.size();k++){
+//						List<String> l = new ArrayList<String>();
+//						for(int j=0;j<vehilist.size();j++){
+//							arealist.get(k).put("AREAVHIC", new ArrayList<String>());
+//							if(rectContains(vehilist.get(j), arealist.get(k))){
+//								l.add(String.valueOf(vehilist.get(j).get("VEHI_NO")));
+////								break;
+//							}
+//						}
+//						arealist.get(k).put("AREAVHIC", l);
+//					}
+					long endTime = System.currentTimeMillis();
+					//System.out.println("##cost:" + (endTime - startTime)
+					//		/ 1000.0f);
+
+					DataItem data = (DataItem) GisData.map.get("data");
+					if (null == data) {
+						data = new DataItem();
+						GisData.map.put("data", data);
+					}
+
+					endTime = System.currentTimeMillis();
+					Collections.sort(vehilist, new PointCompare2());
+					try {
+						// deletePoint2(vehilist,0.1);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					data.setArealist(arealist);
+					data.setNum(num);
+					data.setVehilist(vehilist);
+
+				//	System.out.println("## sort" + (System.currentTimeMillis() - endTime) / 1000.f);
+					endTime = System.currentTimeMillis();
+
+					//System.out.println(vehilist.size());
+				//	System.out.println(vehilist.size() + "," + l2.size() + ","
+				//			+ l3.size() + "," + l4.size() + "," + l5.size()
+				//			+ "," + l6.size() + "," + l7.size());
+				//	System.out.println("## cluster "+ (System.currentTimeMillis() - endTime) / 1000.f);
+
+					try {
+						Thread.sleep(sleepTime );
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				
+			}
+
+
+			public <T> List<T> deepCopy(List<T> src) throws IOException,
+					ClassNotFoundException {
+				ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+				ObjectOutputStream out = new ObjectOutputStream(byteOut);
+				out.writeObject(src);
+
+				ByteArrayInputStream byteIn = new ByteArrayInputStream(
+						byteOut.toByteArray());
+				ObjectInputStream in = new ObjectInputStream(byteIn);
+				@SuppressWarnings("unchecked")
+				List<T> dest = (List<T>) in.readObject();
+				return dest;
+			}
+		};
+
+		try {
+			thread.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	
+	/**
+	 * 车辆是否在区域内
+	 * @param vehicle
+	 * @param area
+	 * @return
+	 */
+	private boolean rectContains(Map<String, Object> vehicle, Map<String, Object> area) {
+		String[] zbs = area.get("AREA_COORDINATES").toString().split(";");//120.123,30.123;123.123,33.211;
+		Geometry geometry=GeometryHandler.getGeometryObject(area.get("AREA_COORDINATES").toString()+";"+zbs[0]);
+		String xy = (String.valueOf(vehicle.get("PX")).equals("null")?"0":vehicle.get("PX")) +"," + (String.valueOf(vehicle.get("PY")).equals("null")?0:vehicle.get("PY"));
+		Geometry g2=GeometryHandler.getGeometryObject(xy);
+		return geometry.contains(g2);
+	}
+
+	public void contextDestroyed(ServletContextEvent sce) {
+		System.out.println("#####system destroye#####");
+	}
+}
+
+
+class PointCompare2 implements Comparator<Map<String, Object>> {
+	public int compare(final Map<String, Object> a, final Map<String, Object> b) {
+		double d = String.valueOf(a.get("PX")).equals("null")?0.0:Double.parseDouble(String.valueOf(a.get("PX")));
+		double d1 = String.valueOf(b.get("PX")).equals("null")?0.0:Double.parseDouble(String.valueOf(b.get("PX")));
+		double d2 = String.valueOf(a.get("PY")).equals("null")?0.0:Double.parseDouble(String.valueOf(a.get("PY")));
+		double d3 = String.valueOf(b.get("PY")).equals("null")?0.0:Double.parseDouble(String.valueOf(b.get("PY")));
+		if ( d < d1) {
+			return -1;
+		} else if (d > d1) {
+			return 1;
+		} else if (d2 < d2) {
+			return -1;
+		} else if (d3 > d3) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+}
+

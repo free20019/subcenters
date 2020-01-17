@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--命名空间应该是对应接口的包名+接口名 -->
+<mapper namespace="mvc.mapper.bikeDao">
+	<select id="getPunish" resultType="map">
+    	select (select count(1) from tb_cf where 1=1
+    	<if test="marked!= null and marked !='' and marked !='null'">
+    	 	<![CDATA[and punish_obj like CONCAT('%',#{marked},'%')]]>
+    	</if>
+    	<if test="company!= null and company !='' and company !='null'">
+    	 	<![CDATA[and punish_organ like CONCAT('%',#{company},'%')]]>
+    	</if>
+    	) c,t.* from tb_cf t where 1=1
+    	<if test="marked!= null and marked !='' and marked !='null'">
+    	 	<![CDATA[and punish_obj like CONCAT('%',#{marked},'%')]]>
+    	</if>
+    	<if test="company!= null and company !='' and company !='null'">
+    	 	<![CDATA[and punish_organ like CONCAT('%',#{company},'%')]]>
+    	</if>
+    	limit ${page},30
+    </select>
+    <select id="getqykh" resultType="map">
+    	select t.* from tb_bike_qykhtjb t where 1=1
+    	<if test="year != null and year !='' and year !='null'">
+    	 	and year = #{year}
+    	</if>
+    	<if test="quarter!= null and quarter !='' and quarter !='null'">
+    	 	<![CDATA[and month like CONCAT('%',#{quarter},'%')]]>
+    	</if>
+    	 order by level 
+    </select>
+    
+    <select id="getDeposit" resultType="map">
+    	select t.* from tb_bike_yj t
+    </select>
+    <select id="getcomp" resultType="map">
+    	select t.* from tb_bike_company t
+    </select>
+    <select id="getPerson" resultType="map">
+    	select (select count(1) from tb_bike_operation o,tb_bike_company c where o.CompanyId = c.companyid
+	    	<if test="compname != null and compname !='' and compname !='null'">
+	    	 	and CompanyName_JC = #{compname}
+	    	</if>
+	    	<if test="name != null and name !='' and name !='null'">
+	    	 	and Name like CONCAT('%',#{name},'%')
+	    	</if>
+    	) count,o.*,c.CompanyName_JC from tb_bike_operation o,tb_bike_company c where o.CompanyId = c.companyid
+    		<if test="compname != null and compname !='' and compname !='null'">
+	    	 	and CompanyName_JC = #{compname}
+	    	</if>
+	    	<if test="name != null and name !='' and name !='null'">
+	    	 	and Name like CONCAT('%',#{name},'%')
+	    	</if>
+	    limit ${page},${pageSize}
+    </select>
+    <select id="getBike" resultType="map">
+    	select b.BicycleNo,
+			b.Flag,
+			b.isOut,
+			b.UpdateTime,
+			c.CompanyName_JC from tb_bike b,
+			tb_bike_company c
+		WHERE
+			b.CompanyId = c.companyid
+    		<if test="compname != null and compname !='' and compname !='null'">
+	    	 	and CompanyName_JC = #{compname}
+	    	</if>
+	    	<if test="bikeno != null and bikeno !='' and bikeno !='null'">
+	    	 	and BicycleNo like CONCAT('%',#{bikeno},'%')
+	    	</if>
+	    	<if test="state != null and state !='' and state !='null'">
+	    	 	and b.State = #{state}
+	    	</if>
+	    	UNION ALL
+	SELECT
+		e.BicycleNo,
+		e.Flag,
+		e.isOut,
+		e.DBTime UpdateTime,
+		c.CompanyName_JC
+	FROM
+		tb_ebike e,
+		tb_bike_company c
+	WHERE
+		e.CompanyId = c.companyid
+		<if test="compname != null and compname !='' and compname !='null'">
+	    	 	and CompanyName_JC = #{compname}
+	    	</if>
+	    	<if test="bikeno != null and bikeno !='' and bikeno !='null'">
+	    	 	and BicycleNo like CONCAT('%',#{bikeno},'%')
+	    	</if>
+	    	<if test="state != null and state !='' and state !='null'">
+	    	 	and e.State = #{state}
+	    	</if>
+	    limit ${page},${pageSize}
+    </select>
+    <select id="getBikeCount" resultType="map">
+    select count(1) c from (
+    	select b.BicycleNo,
+			b.Flag,
+			b.isOut,
+			b.UpdateTime,
+			c.CompanyName_JC from tb_bike b,
+			tb_bike_company c
+		WHERE
+			b.CompanyId = c.companyid
+    		<if test="compname != null and compname !='' and compname !='null'">
+	    	 	and CompanyName_JC = #{compname}
+	    	</if>
+	    	<if test="bikeno != null and bikeno !='' and bikeno !='null'">
+	    	 	and BicycleNo like CONCAT('%',#{bikeno},'%')
+	    	</if>
+	    	<if test="state != null and state !='' and state !='null'">
+	    	 	and b.State = #{state}
+	    	</if>
+	    	UNION ALL
+	SELECT
+		e.BicycleNo,
+		e.Flag,
+		e.isOut,
+		e.DBTime UpdateTime,
+		c.CompanyName_JC
+	FROM
+		tb_ebike e,
+		tb_bike_company c
+	WHERE
+		e.CompanyId = c.companyid
+		<if test="compname != null and compname !='' and compname !='null'">
+	    	 	and CompanyName_JC = #{compname}
+	    	</if>
+	    	<if test="bikeno != null and bikeno !='' and bikeno !='null'">
+	    	 	and BicycleNo like CONCAT('%',#{bikeno},'%')
+	    	</if>
+	    	<if test="state != null and state !='' and state !='null'">
+	    	 	and e.State = #{state}
+	    	</if>
+	    	) a
+    </select>
+    <select id="getKeepBike" resultType="map">
+    	select (case when c.CompanyName_JC='HELLOBIKE' and s.type = '0' then '哈啰单车' when c.CompanyName_JC='HELLOBIKE' and s.type = '1' then '哈啰电单车' else c.CompanyName_JC end) CompanyName_JC
+		,count(1) ycxs,sum(babj) wbas from tb_bike_company c,tb_bike_scan s where c.companyid=s.companyid GROUP BY c.CompanyName_JC,s.type
+    </select>
+    <select id="getKeepBikeQuery" resultType="map">
+    	select (case when c.CompanyName_JC='HELLOBIKE' and s.type = '0' then '哈啰单车' when c.CompanyName_JC='HELLOBIKE' and s.type = '1' then '哈啰电单车' else c.CompanyName_JC end) CompanyName_JC
+		,s.* from tb_bike_company c,tb_bike_scan s where c.companyid=s.companyid
+		<if test="compname != null and compname !='' and compname !='null'">
+    	 	and CompanyName_JC = #{compname}
+    	</if>
+    	<if test="bikeno != null and bikeno !='' and bikeno !='null'">
+	    	 	and BicycleNo like CONCAT('%',#{bikeno},'%')
+    	</if>
+    	limit ${page},${pageSize}
+    </select>
+    <select id="getProgram" resultType="map">
+    	select area,companyid,sum(smcl) smcl,sum(smzl) smzl,sum(wba) wba,sum(yba) yba ,sum(jlc1) jlc1,
+    	ROUND(sum(yba)/sum(smzl)*100,2) as ybal,
+    	ROUND(sum(wba)/sum(smzl)*100,2) as wbal from tb_bike_areacount 
+    	where <![CDATA[ DBTime >= #{stime} and DBTime <= #{etime}]]>
+    	<if test="area != null and area !='' and area !='全部'">
+    	 	and area = #{area}
+    	</if>
+		GROUP BY area,companyid
+    </select>
+    <select id="getbikeAnalysis" resultType="map">
+    	select * from (select date_format(DBtime,'%m') db,CompanyId,DBtime,Order_num,Vehicle_num,Vehicle_no from tb_static where
+		date_format(DBtime,'%Y-%m') = #{time} ORDER BY DBtime desc) a
+		UNION all
+		select * from (select date_format(DBtime,'%m') db,
+		(case when CompanyId='hellobike' then 'hellobike1' else CompanyId end) CompanyId,DBtime,Order_num,Vehicle_num,Vehicle_no from tb_ebike_static where
+		date_format(DBtime,'%Y-%m') = #{time} ORDER BY DBtime) b 
+		UNION all 
+		select * from (select date_format(DBtime,'%m') db,CompanyId,DBtime,Order_num,Vehicle_num,Vehicle_no from tb_pbike_static where
+		date_format(DBtime,'%Y-%m') = '2019-07' ORDER BY DBtime desc) c order by DBtime
+    </select>
+    <select id="getDataAccess" resultType="map">
+    	<![CDATA[select * from tb_monitor where DBTime>=#{stime} and 
+		dbtime <=#{etime} order by CompanyId,DBTime]]>
+    </select>
+    <select id="getUser" resultType="map">
+    	select t1.id, t1.username ,t1.phone, t1.password, t1.xm, t1.qx from tb_user t1 where 1=1
+    	<if test="name != null and name !='' and name !='null'">
+    	 	and username like CONCAT('%',#{name},'%')
+    	</if>
+    </select>
+    <!-- 增加 -->
+    <insert id="addUser">
+        insert into tb_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        	<if test="username!=null">
+        		username,
+        	</if>
+        	<if test="password!=null">
+        		password,
+        	</if>
+        	<if test="name!=null">
+        		xm,
+        	</if>
+        	<if test="phone!=null">
+        		phone,
+        	</if>
+        	<if test="companyId!=null">
+        		companyId,
+        	</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+        	<if test="username!=null">
+        		#{username},
+        	</if>
+        	<if test="password!=null">
+        		#{password},
+        	</if>
+        	<if test="name!=null">
+        		#{name},
+        	</if>
+        	<if test="phone!=null">
+        		#{phone},
+        	</if>
+        	<if test="companyId!=null">
+        		#{companyId},
+        	</if>
+        </trim>
+    </insert>
+    <!-- 删除 -->
+    <delete id="delUser">
+        delete from tb_user where id=#{id}
+    </delete>
+    <!-- 更新 -->
+    <update id="editUser">
+        update tb_user set username=#{username},password=#{password},xm=#{name},phone=#{phone}
+        where id=#{id}
+    </update>
+    <select id="getArlyWarning" resultType="map">
+    	select (select count(1) from tb_arlywarning) c,a.* from tb_arlywarning a limit ${page},30
+    </select>
+    <update id="ArlyWarningHandle">
+        update tb_arlywarning set yj_state=0
+        where id=#{id}
+    </update>
+    <update id="addPower">
+        update tb_user set qx=#{list},qxlist=#{qxlist}
+        where id=#{id}
+    </update>
+    <select id="getBicycleNo" resultType="map">
+    	select b.c, (case when c.CompanyName_JC='HELLOBIKE' then '哈啰单车' else c.CompanyName_JC end) CompanyName_JC from(select * from (select CompanyId,count(1) c from tb_bike
+    	 group by CompanyId) a) b,tb_bike_company c where b.CompanyId=c.companyid
+		UNION all
+		select b.c,(case when c.CompanyName_JC='HELLOBIKE' then '哈啰电单车' else c.CompanyName_JC end) CompanyName_JC from(select * from (select CompanyId,count(1) c from tb_ebike
+    	 group by CompanyId) a) b,tb_bike_company c where b.CompanyId=c.companyid
+    </select>
+    <select id="getBicycleActive" resultType="map">
+		select (case when a.c is null then 0 else a.c end) c,(case when c.CompanyName_JC='HELLOBIKE' then '哈啰单车'
+		 else c.CompanyName_JC end) CompanyName_JC from (select c.companyid,c.CompanyName_JC from tb_bike_company c
+		  where (c.type=0 or c.type = 2)) c LEFT JOIN (select CompanyId,count(1) c from (select CompanyId from ${table}
+    	 where DATE_FORMAT(DepartTime,'%Y-%m-%d') = #{time} group by CompanyId,BicycleNo) z group by CompanyId) a on a.CompanyId=c.companyid 
+		union all
+		select (case when a.c is null then 0 else a.c end) c,(case when c.CompanyName_JC='HELLOBIKE' then '哈啰单车'
+		 else c.CompanyName_JC end) CompanyName_JC from (select c.companyid,c.CompanyName_JC from tb_bike_company c
+		  where (c.type=1 or c.type = 2)) c LEFT JOIN (select CompanyId,count(1) c from (select CompanyId from ${table1}
+    	 where DATE_FORMAT(DBTime,'%Y-%m-%d') = #{time} group by CompanyId,BicycleNo) z group by CompanyId) a on a.CompanyId=c.companyid 
+    </select>
+    <select id="getBicycleDistribution" resultType="map">
+    	select a.DistrictName,a.Count1,b.Count2 from(SELECT t.DistrictName,SUM(t.Count) Count1 FROM tb_bike_district t
+    	 where DATE_FORMAT(DBtime,'%Y-%m-%d') = #{time} group by DistrictName order by Count1 desc) a
+		LEFT JOIN
+		(SELECT t.DistrictName DistrictName2,SUM(t.Count) Count2 FROM tb_ebike_district t
+		    	 where DATE_FORMAT(DBtime,'%Y-%m-%d') = #{time} group by DistrictName order by Count2 desc) b
+		on a.DistrictName=b.DistrictName2
+    </select>
+    <select id="getbicycleOrderNo" resultType="map">
+    	select (case when a.c is null then 0 else a.c end) c,(case when c.CompanyName_JC='HELLOBIKE' then '哈啰单车'
+		 else c.CompanyName_JC end) CompanyName_JC from (select c.companyid,c.CompanyName_JC from tb_bike_company c
+		  where type = 0 or type = 2) c LEFT JOIN (select CompanyId,count(1) c from ${table}
+    	 where DATE_FORMAT(DepartTime,'%Y-%m-%d') = #{time} group by CompanyId) a
+    	  on a.CompanyId=c.companyid
+    </select>
+     <select id="getEbicycleOrderNo" resultType="map">
+    	select (case when a.c is null then 0 else a.c end) c,(case when c.CompanyName_JC='HELLOBIKE' then '哈啰电单车'
+		 else c.CompanyName_JC end) CompanyName_JC from (select c.companyid,c.CompanyName_JC from tb_bike_company c
+		  where type = 1 or type = 2) c LEFT JOIN (select CompanyId,count(1) c from ${table}
+    	 where DATE_FORMAT(DBTime,'%Y-%m-%d') = #{time} group by CompanyId) a
+    	  on a.CompanyId=c.companyid
+    </select>
+    <select id="login" resultType="map">
+    	select * from tb_user where username = #{username} and password = #{password}
+    </select>
+    <select id="getTurnoverRate" resultType="map">
+    	select t.*,c.CompanyName_JC from tb_bike_turnover_month t,tb_bike_company c where DATE_FORMAT(DBtime,'%Y-%m-%d') = #{time} and t.CompanyId=c.CompanyId
+    </select>
+    <select id="getBicycleOrderTurn" resultType="map">
+    	SELECT (case when c.CompanyName_JC='HELLOBIKE' then '哈啰单车' else c.CompanyName_JC end) CompanyName_JC,s.* FROM ( SELECT companyid, CompanyName_JC FROM tb_bike_company c WHERE c.type = 0 OR c.type = 2 ) c LEFT JOIN ( SELECT * FROM tb_static s WHERE DATE_FORMAT(s.DBtime, '%Y-%m-%d') = #{time}) s ON c.companyid = s.CompanyId
+    </select>
+    <select id="getEBicycleOrderTurn" resultType="map">
+    	SELECT (case when c.CompanyName_JC='HELLOBIKE' then '哈啰电单车' else c.CompanyName_JC end) CompanyName_JC,s.* FROM ( SELECT companyid, CompanyName_JC FROM tb_bike_company c WHERE c.type = 1 OR c.type = 2 ) c LEFT JOIN ( SELECT * FROM tb_ebike_static s WHERE DATE_FORMAT(s.DBtime, '%Y-%m-%d') = #{time}) s ON c.companyid = s.CompanyId
+    </select>
+    <select id="getPBicycleOrderTurn" resultType="map">
+    	SELECT c.CompanyName_JC, s.* FROM ( SELECT companyid, CompanyName_JC FROM tb_bike_company c WHERE c.type = 3 ) c LEFT JOIN ( SELECT * FROM tb_pbike_static s WHERE DATE_FORMAT(s.DBtime, '%Y-%m-%d') = #{time}) s ON c.companyid = s.CompanyId
+    </select>
+    <select id="getNotUsed" resultType="map">
+	select w.*,CONCAT(round(w.A/x.c,2),'%') L,CompanyName_JC from (select CompanyID,
+	max(case when ExpireType=0 then AreaNum else null end) as 'A',
+	max(case when ExpireType=1 then AreaNum else null end) as 'B',
+	max(case when ExpireType=2 then AreaNum else null end) as 'C',
+	max(case when ExpireType=3 then AreaNum else null end) as 'D'
+	from (SELECT
+	CompanyID,
+	SUM(AreaNum) AreaNum,
+	ExpireType
+	FROM
+	tb_cluster_company_expire
+	WHERE
+	AreaType = 1
+	AND DATE_FORMAT(DBtime, '%Y-%m-%d') = #{time}
+	GROUP BY
+	CompanyID,
+	ExpireType) Z group by CompanyID) w ,(select b.CompanyId,count(1) c,(case when c.CompanyName_JC='HELLOBIKE' then '哈啰单车' else c.CompanyName_JC end) CompanyName_JC from tb_bike b,tb_bike_company c where b.CompanyId=c.companyid group by CompanyId,CompanyName_JC) x where w.CompanyID=x.CompanyID
+	UNION ALL
+	select w.*,CONCAT(round(w.A/x.c,2),'%') L,CompanyName_JC from (select CompanyID,
+	max(case when ExpireType=0 then AreaNum else null end) as 'A',
+	max(case when ExpireType=1 then AreaNum else null end) as 'B',
+	max(case when ExpireType=2 then AreaNum else null end) as 'C',
+	max(case when ExpireType=3 then AreaNum else null end) as 'D'
+	from (SELECT
+	CompanyID,
+	SUM(AreaNum) AreaNum,
+	ExpireType
+	FROM
+	tb_cluster_ebike_expire
+	WHERE
+	AreaType = 1
+	AND DATE_FORMAT(DBtime, '%Y-%m-%d') = #{time}
+	GROUP BY
+	CompanyID,
+	ExpireType) Z group by CompanyID) w ,(select b.CompanyId,count(1) c,(case when c.CompanyName_JC='HELLOBIKE' then '哈啰电单车' else c.CompanyName_JC end) CompanyName_JC from tb_ebike b,tb_bike_company c where b.CompanyId=c.companyid group by CompanyId,CompanyName_JC) x where w.CompanyID=x.CompanyID
+    </select>
+    <select id="getUserType" resultType="map">
+    	select companyid from tb_bike_company
+    </select>
+    
+    <select id="getLog" resultType="map" parameterType="Integer">
+    	select * from tb_log where username != 'null' order by dbtime limit #{page},30
+    </select>
+    
+    <select id="getLogCount" resultType="Integer">
+    	select count(*) count from tb_log where username != 'null'
+    </select>
+</mapper>

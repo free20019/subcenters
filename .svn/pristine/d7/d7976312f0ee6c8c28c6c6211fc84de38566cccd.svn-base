@@ -1,0 +1,64 @@
+package mvc.service;
+
+
+import helper.JacksonUtil;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+
+@Service
+public class CommonServer {
+	protected JdbcTemplate jdbcTemplate = null;
+	protected JdbcTemplate jdbcTemplate2 = null;
+
+	public JdbcTemplate getJdbcTemplate() {
+		return jdbcTemplate;
+	}
+
+	@Autowired
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
+
+	public JdbcTemplate getJdbcTemplate2() {
+		return jdbcTemplate2;
+	}
+
+	@Autowired
+	public void setJdbcTemplate2(JdbcTemplate jdbcTemplate2) {
+		this.jdbcTemplate2 = jdbcTemplate2;
+	}
+
+	private JacksonUtil jacksonUtil = JacksonUtil.buildNormalBinder();
+	
+	public String test() {
+		System.out.println(jdbcTemplate);
+		System.out.println(jdbcTemplate2);
+		return "ok";
+	}
+
+	public String getVehicle() {
+		String sql = "select distinct PLATE_NUMBER vehicle_no from tb_global_vehicle@db69 where industry=090 and business_scope_code = 1400  AND STATUS_NAME='营运' AND PLATE_NUMBER LIKE '浙A%' order by PLATE_NUMBER";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	public String getCompany() {
+		String sql = "select distinct company_name from tb_global_vehicle where industry=090 and business_scope_code = 1400  AND STATUS_NAME='营运' AND PLATE_NUMBER LIKE '浙A%' AND company_name <>' ' order by company_name";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+}

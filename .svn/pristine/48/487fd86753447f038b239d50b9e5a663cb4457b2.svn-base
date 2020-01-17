@@ -1,0 +1,224 @@
+package mvc.controllers;
+
+import helper.DownloadAct;
+import mvc.service.LetterManagementService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author: xianlehuang
+ * @Description:函件管理
+ * @date: 2019/8/28 - 8:51
+ */
+@Controller
+@RequestMapping("/letterManagement")
+public class LetterManagementAction {
+
+    @Autowired
+    private LetterManagementService letterManagementService;
+
+    private DownloadAct downloadAct = new DownloadAct();
+
+    //转入,转出申请查询
+    @RequestMapping("/findTransferApplication")
+    @ResponseBody
+    public String findTransferApplication(HttpServletRequest request){
+        String msg = letterManagementService.findTransferApplication(request);
+        return msg;
+    }
+
+    //转入,转出申请导出
+    @RequestMapping(value = "/findTransferApplicationExcel")
+    @ResponseBody
+    public String findTransferApplicationExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String a[] = {"车牌号码","原公司名称","现公司名称","转入时间","申请时间","审核状态","审核时间","审核原因"};//导出列明
+        String b[] = {"VEHICLE_NO","OLD_COMPANY","NEW_COMPANY","JOIN_TIME","APPLICATION_TIME","AUDIT_STATUS","AUDIT_TIME","REASON"};//导出map中的key
+        String type=request.getParameter("type");
+        String gzb = "";//导出sheet名和导出的文件名
+        if(type.equals("0")){
+            gzb ="车辆转入申请";
+        }else if(type.equals("1")){
+            gzb	="车辆转出申请";
+            a[3]="转出时间";
+        }
+        List<Map<String, Object>> list= downloadAct.parseJSON2List2(letterManagementService.findTransferApplication(request));
+        downloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+
+    //添加转入,转出申请
+    @RequestMapping("/addTransferApplication")
+    @ResponseBody
+    public String addTransferApplication(HttpServletRequest request){
+        return letterManagementService.addTransferApplication(request);
+    }
+
+    //修改转入,转出申请
+    @RequestMapping("/updateTransferApplication")
+    @ResponseBody
+    public String updateTransferApplication(HttpServletRequest request){
+        return letterManagementService.updateTransferApplication(request);
+    }
+
+    //删除转入,转出申请
+    @RequestMapping("/deleteTransferApplication")
+    @ResponseBody
+    public String deleteTransferApplication(HttpServletRequest request){
+        return letterManagementService.deleteTransferApplication(request);
+    }
+
+    //报停申请查询
+    @RequestMapping("/findStopApplication")
+    @ResponseBody
+    public String findStopApplication(HttpServletRequest request){
+        String msg = letterManagementService.findStopApplication(request);
+        return msg;
+    }
+
+    //报停申请导出
+    @RequestMapping(value = "/findStopApplicationExcel")
+    @ResponseBody
+    public String findStopApplicationExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String a[] = {"公司名称","车牌号码","停报时间","停报原因","上报日期","审核状态","审核时间","审核原因"};//导出列明
+        String b[] = {"COMPANY_NAME","VEHICLE_NO","STOP_TIME","STOP_REASON","UP_TIME","AUDIT_STATUS","AUDIT_TIME","AUDIT_REASON"};//导出map中的key
+        String gzb = "报停申请";//导出sheet名和导出的文件名
+        List<Map<String, Object>> list= downloadAct.parseJSON2List2(letterManagementService.findStopApplication(request));
+        downloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+
+    //添加报停申请
+    @RequestMapping("/addStopApplication")
+    @ResponseBody
+    public String addStopApplication(HttpServletRequest request){
+        return letterManagementService.addStopApplication(request);
+    }
+
+    //修改报停申请
+    @RequestMapping("/updateStopApplication")
+    @ResponseBody
+    public String updateStopApplication(HttpServletRequest request){
+        return letterManagementService.updateStopApplication(request);
+    }
+
+    //删除报停申请
+    @RequestMapping("/deleteStopApplication")
+    @ResponseBody
+    public String deleteStopApplication(HttpServletRequest request){
+        return letterManagementService.deleteStopApplication(request);
+    }
+
+    //变更申请查询
+    @RequestMapping("/findChangeApplication")
+    @ResponseBody
+    public String findChangeApplication(HttpServletRequest request){
+        String msg = letterManagementService.findChangeApplication(request);
+        return msg;
+    }
+
+    //变更申请导出
+    @RequestMapping(value = "/findChangeApplicationExcel")
+    @ResponseBody
+    public String findChangeApplicationExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String a[] = {"原车牌号码","现车牌号码","申请时间","审核状态","审核时间","审核原因"};//导出列明
+        String b[] = {"OLD_VEHICLE_NO","NEW_VEHICLE_NO","APPLY_TIME","AUDIT_STATUS","AUDIT_TIME","AUDIT_REASON"};//导出map中的key
+        String gzb = "变更申请";//导出sheet名和导出的文件名
+        List<Map<String, Object>> list= downloadAct.parseJSON2List2(letterManagementService.findChangeApplication(request));
+        downloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+
+    //添加变更申请
+    @RequestMapping("/addChangeApplication")
+    @ResponseBody
+    public String addChangeApplication(HttpServletRequest request){
+        return letterManagementService.addChangeApplication(request);
+    }
+
+    //修改变更申请
+    @RequestMapping("/updateChangeApplication")
+    @ResponseBody
+    public String updateChangeApplication(HttpServletRequest request){
+        return letterManagementService.updateChangeApplication(request);
+    }
+
+    //删除变更申请
+    @RequestMapping("/deleteChangeApplication")
+    @ResponseBody
+    public String deleteChangeApplication(HttpServletRequest request){
+        return letterManagementService.deleteChangeApplication(request);
+    }
+
+    //数据接入申请查询
+    @RequestMapping("/findDataApplication")
+    @ResponseBody
+    public String findDataApplication(HttpServletRequest request){
+        String msg = letterManagementService.findDataApplication(request);
+        return msg;
+    }
+
+    //数据接入申请导出
+    @RequestMapping(value = "/findDataApplicationExcel")
+    @ResponseBody
+    public String findDataApplicationExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String a[] = {"车号","公司","车型","车辆颜色","燃料类型","终端类型","终端型号","车主姓名","电话号码","白班姓名","夜班姓名","白班电话","夜班电话","申请时间","审核时间","审核人员","审核原因","审核状态"};//导出列明
+        String b[] = {"VEHICLE_NO","COMPANY_NAME","VEHICLE_TYPE","VEHICLE_COLOR","FUEL_TYPE","TERMINAL_TYPE","TERMINAL_MODEL","OWNER_NAME","OWNER_PHONE","DAY_PERSON","NIGHT_PERSON","DAY_PHONE","NIGHT_PHONE","APPLICATION_DATE","AUDIT_DATE","REAL_NAME","AUDIT_REASON","AUDIT_STATUS"};//导出map中的key
+        String gzb = "数据接入申请";//导出sheet名和导出的文件名
+        List<Map<String, Object>> list= downloadAct.parseJSON2List2(letterManagementService.findDataApplication(request));
+        downloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+
+    //添加数据接入申请
+    @RequestMapping("/addDataApplication")
+    @ResponseBody
+    public String addDataApplication(HttpServletRequest request){
+        return letterManagementService.addDataApplication(request);
+    }
+
+    //修改数据接入申请
+    @RequestMapping("/updateDataApplication")
+    @ResponseBody
+    public String updateDataApplication(HttpServletRequest request){
+        return letterManagementService.updateDataApplication(request);
+    }
+
+    //删除数据接入申请
+    @RequestMapping("/deleteDataApplication")
+    @ResponseBody
+    public String deleteDataApplication(HttpServletRequest request){
+        return letterManagementService.deleteDataApplication(request);
+    }
+
+    //转入,转出统计
+    @RequestMapping("/findTransferStatistics")
+    @ResponseBody
+    public String findTransferStatistics(HttpServletRequest request){
+        String msg = letterManagementService.findTransferStatistics(request);
+        return msg;
+    }
+
+    //报停统计
+    @RequestMapping("/findStopStatistics")
+    @ResponseBody
+    public String findStopStatistics(HttpServletRequest request){
+        String msg = letterManagementService.findStopStatistics(request);
+        return msg;
+    }
+
+    //变更统计
+    @RequestMapping("/findChangeStatistics")
+    @ResponseBody
+    public String findChangeStatistics(HttpServletRequest request){
+        String msg = letterManagementService.findChangeStatistics(request);
+        return msg;
+    }
+}

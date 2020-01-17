@@ -1,0 +1,80 @@
+package mvc.entity;
+
+import java.io.Serializable;
+
+public class Vehicle implements Serializable{
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2004839254624437232L;
+/**
+	 * 
+	 */
+/**
+ * 车辆表
+ */
+	private String vehino;//车号
+	private Double longi;//经度
+	private Double lati;//纬度
+	private String cartype;//车辆空重车状态
+	private String compname;//分公司名
+	private String compid;//分公司名
+	
+	private String dateTime;//时间
+	private String heading;
+	
+	public String getCompid() {
+		return compid;
+	}
+	public void setCompid(String compid) {
+		this.compid = compid;
+	}
+	public String getVehino() {
+		return vehino;
+	}
+	public void setVehino(String vehino) {
+		this.vehino = vehino;
+	}
+	public Double getLongi() {
+		return longi;
+	}
+	public void setLongi(Double longi) {
+		this.longi = longi;
+	}
+	public Double getLati() {
+		return lati;
+	}
+	public void setLati(Double lati) {
+		this.lati = lati;
+	}
+	public String getCartype() {
+		return cartype;
+	}
+	public void setCartype(String cartype) {
+		this.cartype = cartype;
+	}
+	public String getCompname() {
+		return compname;
+	}
+	public void setCompname(String compname) {
+		this.compname = compname;
+	}
+	public String getDateTime() {
+		return dateTime;
+	}
+	public void setDateTime(String dateTime) {
+		this.dateTime = dateTime;
+	}
+	public String getHeading() {
+		return heading;
+	}
+	public void setHeading(String heading) {
+		this.heading = heading;
+	}
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	
+
+	
+}

@@ -1,0 +1,572 @@
+package mvc.service;
+
+import helper.JacksonUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+/**
+ * @author: xianlehuang
+ * @Description:数据统计
+ * @date: 2019/8/21 - 10:00
+ */
+@Service
+public class DataStatisticsService {
+
+    @Autowired
+    protected JdbcTemplate jdbcTemplate;
+    private JacksonUtil jacksonUtil = JacksonUtil.buildNormalBinder();
+
+    //数据统计(里程统计，单车里程统计，车辆上线情况统计)
+    public String findDataStatistics(HttpServletRequest request) {
+        String module = request.getParameter("module");
+        String field1 = request.getParameter("field1");
+        String field2 = request.getParameter("field2");
+        String field3 = request.getParameter("field3");
+        String time = request.getParameter("time");
+        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        //今天，昨天
+        for (int i = 0; i < 2; i++) {
+            Map<String, Object> map1=toMap(i,finddcpjfx(module,i,field1,time));
+            if(i==0){
+                map1.put("message", "今天");
+            }else if(i==1){
+                map1.put("message", "昨天");
+            }
+            list.add(map1);
+        }
+        //前天，上周
+        for (int i = 2; i < 4; i++){
+            Map<String, Object> map2=toMap(i,findday(module,i,field2,time));
+            if(i==2){
+                map2.put("message", "前天");
+            }else if(i==3){
+                map2.put("message", "上周");
+            }
+            list.add(map2);
+        }
+        //上周平均
+        Map<String, Object> map3=toMap(4,findaverage(module,field2,time));
+        map3.put("message", "上周平均");
+        list.add(map3);
+        //上半月最大最小
+        tolist(findmaxmin(module,field3,time),list,field3);
+        //上月，上年
+        for (int i = 7; i < 9; i++){
+            Map<String, Object> map4=toMap(i,findday(module,i,field2,time));
+            if(i==7){
+                map4.put("message", "上月");
+            }else if(i==8){
+                map4.put("message", "上年");
+            }
+            list.add(map4);
+        }
+        return jacksonUtil.toJson(list);
+    }
+    //今天，昨天
+    public List<Map<String, Object>> finddcpjfx(String module, Integer i, String field1, String time){
+        String tj="";
+        String sql ="";
+        time=findtime(i,time);
+        if(module.equals("zxyylfx")){
+            if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0&&!time.equals("时间")){
+                tj += " and db_time >=to_date('"+time+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time <=to_date('"+time+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+            }
+            sql += "select "+field1+" COUNT,to_char(db_time,'hh24') TIME from TB_TAXI_RUN_RATE@taxilink105 where 1=1 and  to_char(db_time, 'mi')='00'";
+            sql += tj ;
+        }else if(module.equals("MileageStatistics")){
+            if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0&&!time.equals("时间")){
+                tj += " and db_time >=to_date('"+time+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time <=to_date('"+time+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+            }
+            sql += "select replace("+field1+",'%','')||'%' COUNT,to_char(db_time,'hh24') TIME from TB_TAXI_RUN_INFO_RECORD_TEST@taxilink105 where 1=1 ";
+            sql += tj ;
+        }else if(module.equals("CyclingMileageStatistics")){
+            if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0&&!time.equals("时间")){
+                tj += " and db_time >=to_date('"+time+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time <=to_date('"+time+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+            }
+            sql += "select "+field1+" COUNT,to_char(db_time,'hh24') TIME from TB_TAXI_RUN_INFO_RECORD_TEST@taxilink105 where 1=1 ";
+            sql += tj ;
+        }else if(module.equals("VehicleOnlineStatistics")||module.equals("zclfx")){
+            if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0&&!time.equals("时间")){
+                tj += " and db_time >=to_date('"+time+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time <=to_date('"+time+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+            }
+            sql += "select "+field1+" COUNT,to_char(db_time,'hh24') TIME from TB_TAXI_LOAD_ONLINE_RATE@taxilink105 where 1=1 and  to_char(db_time, 'mi')='00'  and ba_id=0";
+            sql += tj ;
+        }
+        System.out.println("今天昨天="+sql);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        return list;
+
+    }
+    //前天，上周，上月，上年
+    public List<Map<String, Object>> findday(String module, Integer i, String field2, String time){
+        String tj="";
+        String sql ="";
+        time=findtime(i,time);
+        if(module.equals("zxyylfx")){
+            if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0&&!time.equals("时间")){
+                tj += " and db_time >=to_date('"+time+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time <=to_date('"+time+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+            }
+            sql += "select "+field2+" COUNT,to_char(db_time,'hh24') TIME from TB_TAXI_RUN_RATE@taxilink105 where 1=1 and  to_char(db_time, 'mi')='00'";
+            sql += tj ;
+        }else if(module.equals("MileageStatistics")){
+            if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0&&!time.equals("时间")){
+                tj += " and db_time >=to_date('"+time+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time <=to_date('"+time+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+            }
+            sql += "select replace("+field2+",'%','')||'%' COUNT,to_char(db_time,'hh24') TIME from TB_TAXI_RUN_INFO_RECORD_TEST@taxilink105 where 1=1 ";
+            sql += tj ;
+        }else if(module.equals("CyclingMileageStatistics")){
+            if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0&&!time.equals("时间")){
+                tj += " and db_time >=to_date('"+time+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time <=to_date('"+time+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+            }
+            sql += "select "+field2+" COUNT,to_char(db_time,'hh24') TIME from TB_TAXI_RUN_INFO_RECORD_TEST@taxilink105 where 1=1 ";
+            sql += tj ;
+        }else if(module.equals("VehicleOnlineStatistics")||module.equals("zclfx")){
+            if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0&&!time.equals("时间")){
+                tj += " and db_time >=to_date('"+time+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time <=to_date('"+time+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+            }
+            sql += "select "+field2+" COUNT,to_char(db_time,'hh24') TIME from TB_TAXI_LOAD_ONLINE_RATE@taxilink105 where 1=1 and  to_char(db_time, 'mi')='00'  and ba_id=0";
+            sql += tj ;
+        }
+        System.out.println("前天上周 上月上年="+sql);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        return list;
+
+    }
+    //上周平均
+    public List<Map<String, Object>> findaverage(String module, String field2, String time){
+        String tj="";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar calendar = Calendar.getInstance();
+        if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0&&!time.equals("时间")){
+//			time = time.replaceAll("-","");
+        }else{
+            time=sdf.format(new Date());
+        }
+        try {
+            calendar.setTime(sdf.parse(time));
+        }catch (ParseException e) {
+            e.printStackTrace();
+        }
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        calendar.add(Calendar.DATE, -7);
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        String stime = sdf.format(calendar.getTime());
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+        String etime = sdf.format(calendar.getTime());
+        String sql = "";
+        if(module.equals("zxyylfx")){
+            tj += " and db_time >=to_date('"+stime+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time <=to_date('"+etime+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+            sql+= "select ROUND(sum(replace("+field2+",'%',''))/count("+field2+"))||'%' COUNT,to_char(db_time, 'hh24') TIME from TB_TAXI_RUN_RATE@taxilink105 "
+                    + " where 1=1  and  to_char(db_time, 'mi')='00'";
+            sql+=tj;
+            sql+= " group by to_char(db_time, 'hh24') order by to_char(db_time, 'hh24')";
+        }else if(module.equals("MileageStatistics")){
+            tj += " and db_time >=to_date('"+stime+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time <=to_date('"+etime+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+            sql+= "select ROUND(sum(replace("+field2+",'%',''))/count("+field2+"))||'%' COUNT,to_char(db_time, 'hh24') TIME from TB_TAXI_RUN_INFO_RECORD_TEST@taxilink105 "
+                    + " where 1=1  and  to_char(db_time, 'mi')='00'";
+            sql+=tj;
+            sql+= " group by to_char(db_time, 'hh24') order by to_char(db_time, 'hh24')";
+        }else if(module.equals("CyclingMileageStatistics")){
+            tj += " and db_time >=to_date('"+stime+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time <=to_date('"+etime+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+            sql+= "select ROUND(sum("+field2+")/count("+field2+"),2) COUNT,to_char(db_time, 'hh24') TIME from TB_TAXI_RUN_INFO_RECORD_TEST@taxilink105 "
+                    + " where 1=1  and  to_char(db_time, 'mi')='00'";
+            sql+=tj;
+            sql+= " group by to_char(db_time, 'hh24') order by to_char(db_time, 'hh24')";
+        }else if(module.equals("VehicleOnlineStatistics")||module.equals("zclfx")){
+            tj += " and db_time >=to_date('"+stime+" 00:00:00','yyyy-mm-dd hh24:mi:ss') and db_time <=to_date('"+etime+" 23:59:59','yyyy-mm-dd hh24:mi:ss')";
+            sql+= "select ROUND(sum(replace("+field2+",'%',''))/count("+field2+"))||'%' COUNT,to_char(db_time, 'hh24') TIME from TB_TAXI_LOAD_ONLINE_RATE@taxilink105 "
+                    + " where 1=1  and  to_char(db_time, 'mi')='00'  and ba_id=0";
+            sql+=tj;
+            sql+= " group by to_char(db_time, 'hh24') order by to_char(db_time, 'hh24')";
+        }
+
+        System.out.println("平均  " + sql);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        return list;
+
+    }
+    //上半月最大最小
+    public List<Map<String, Object>> findmaxmin(String module,String field3, String time){
+        String tj="";
+        time=findtime(1,time);
+        String sql = "";
+        if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0&&!time.equals("时间")){
+            tj += " and to_char(enddate, 'yyyy-mm-dd') ='"+time+"'";
+        }
+        if(module.equals("VehicleOnlineStatistics")||module.equals("zclfx")){
+            sql += "select * from TB_AREA_HALF_MONTH_ONLINE_RATE@taxilink105  where 1=1 and ba_id=0 and rownum<2";
+            sql += tj;
+            sql +=" order by id desc";
+        }else if(module.equals("zxyylfx")||module.equals("MileageStatistics")||module.equals("CyclingMileageStatistics")){
+            sql += "select * from TB_HALF_MONTH_ONLINE_RUN_RATE@taxilink105  where 1=1";
+            sql += tj;
+        }
+        System.out.println("findmaxmin="+sql);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        return list;
+    }
+
+    //将查询出的数据转换为指定格式{y1:"",y2:""....}
+    private Map<String, Object> toMap(int m,List<Map<String, Object>> list) {
+        String[] str = { "00", "01", "02", "03", "04", "05",
+                "06", "07", "08", "09", "10", "11", "12", "13",
+                "14", "15", "16", "17", "18", "19", "20", "21",
+                "22", "23", };
+        Map<String, Object> map = new HashMap<String, Object>();
+        int a = 0;
+        for (int i = 0; i < list.size(); i++) {
+            if ((a=Arrays.asList(str).indexOf(list.get(i).get("TIME")))>-1) {
+                map.put("y" + a, list.get(i).get("COUNT"));
+            }
+        }
+        for (int i = 0; i < 24; i++) {
+            if (map.get("y" + i) == null) {
+                map.put("y" + i, "");
+            }
+        }
+        return map;
+    }
+
+    //区分开前半月最大，前半月最小，并以指定格式输出[{},{}]
+    private void tolist(List<Map<String, Object>> listmaxmin,
+                        List<Map<String, Object>> list, String field3) {
+        String[] max = { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+                "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" };
+        String[] min = { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+                "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" };
+        if (listmaxmin.size() != 0) {
+            max = String.valueOf(listmaxmin.get(0).get(field3+"_MAX")).split(
+                    ";");
+            min = String.valueOf(listmaxmin.get(0).get(field3+"_MIN")).split(
+                    ";");
+        }
+        Map<String, Object> maxMap = new HashMap<String, Object>();
+        for (int j = 0; j < max.length; j++) {
+            maxMap.put("y" + j, max[j]);
+        }
+        maxMap.put("message", "前半月最大");
+
+        Map<String, Object> minMap = new HashMap<String, Object>();
+        for (int j = 0; j < min.length; j++) {
+            minMap.put("y" + j, min[j]);
+        }
+        minMap.put("message", "前半月最小");
+        list.add(maxMap);
+        list.add(minMap);
+    }
+
+    //计算出今天,昨天,前天,上周,上周平均,前半月最大,前半月最小,上月,上年Query所需time
+    private String findtime(Integer i, String time) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar calendar = Calendar.getInstance();
+        if(time!=null&&!time.isEmpty()&&!time.equals("null")&&time.length()>0&&!time.equals("时间")){
+//			time = time.replaceAll("-","");
+        }else{
+            calendar.setTime(new Date());
+            time=sdf.format(calendar.getTime());
+        }
+
+        try {
+            calendar.setTime(sdf.parse(time));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if(i==0){
+            return time;
+        }else if(i==1){
+            calendar.add(Calendar.DATE, -1);
+            Date date = calendar.getTime();
+            time=sdf.format(date);
+            return time;
+        }else if(i==2){
+            calendar.add(Calendar.DATE, -2);
+            Date date = calendar.getTime();
+            time=sdf.format(date);
+            return time;
+        }else if(i==3){
+            calendar.add(Calendar.DATE, -7);
+            Date date = calendar.getTime();
+            time=sdf.format(date);
+            return time;
+        }else if(i==7){
+            calendar.add(Calendar.MONDAY, -1);
+            Date date = calendar.getTime();
+            time=sdf.format(date);
+            return time;
+        }else if(i==8){
+            calendar.add(Calendar.YEAR, -1);
+            Date date = calendar.getTime();
+            time=sdf.format(date);
+            return time;
+        }
+        return null;
+    }
+
+    //无营数据车辆
+    public String findNoCampDataVehicle(HttpServletRequest request) {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        String company=request.getParameter("company");
+        String tj="";
+        String tj2="";
+        String riqi = startTime.substring(0, 4);
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj2 +=" and t.COMP_NAME='"+company+"'";
+        }
+        if(startTime!=null&&!startTime.isEmpty()&&!startTime.equals("null")&&startTime.length()>0){
+            tj +=" and t.xiache >=to_date('"+startTime+"','yyyy-MM-dd hh24:mi:ss')";
+        }
+        if(endTime!=null&&!endTime.isEmpty()&&!endTime.equals("null")&&endTime.length()>0){
+            tj +=" and t.xiache <=to_date('"+endTime+"','yyyy-MM-dd hh24:mi:ss')";
+        }
+        String sql = "select vehi_no,comp_name,own_name,own_tel,vehi_sim from VW_VEHICLE@db69 t where  1=1 " ;
+        sql += tj2;
+        sql+=" minus " +
+                " select vehi_no,comp_name,own_name,own_tel,vehi_sim from (select * from" +
+                " (select distinct (vhic) c from TB_CITIZEN_"+riqi+"@db69 t" +
+                " where 1=1";
+        sql += tj;
+        sql +=  ") a, VW_VEHICLE@db69 t where '浙'||a.c=t.vehi_no " ;
+        sql += tj2;
+        sql+=") order by vehi_no";
+        List<Map<String, Object>>list=jdbcTemplate.queryForList(sql);
+        return jacksonUtil.toJson(list);
+    }
+
+    //未上线车辆查询
+    public String findUnlistedVehicle(HttpServletRequest request) {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        String company=request.getParameter("company");
+        String tj="";
+        String tj2="";
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj +=" and v.comp_name='"+company+"'";
+        }
+        if(startTime!=null&&!startTime.isEmpty()&&!startTime.equals("null")&&startTime.length()>0){
+            tj2 +=" and db_time >=to_date('"+startTime+"','yyyy-MM-dd')";
+        }
+        if(endTime!=null&&!endTime.isEmpty()&&!endTime.equals("null")&&endTime.length()>0){
+            tj2 +=" and db_time <=to_date('"+endTime+"','yyyy-MM-dd')";
+        }
+        long ts = getDaySub(startTime, endTime)+1;
+        String sql = " select l.TIME,v.VEHI_NO,v.VEHI_NUM,v.COMP_NAME,v.VEHI_SIM,v.HOME_TEL,v.NIGHT_TEL,v.OWN_NAME,v.MT_NAME,v.MDT_SUB_TYPE" +
+                "  from (select vehi_no,to_char(max(online_time),'yyyy-MM-dd hh24:mi:ss') TIME,count(1) c from TB_TAXI_NOT_ONLINE@db69" +
+                " where online_time<=sysdate";
+        sql+=tj2;
+        sql += "  group by vehi_no)l" +
+                " left join VW_VEHICLE@db69 v on  v.VEHI_NO=l.VEHI_NO  " +
+                " where v.VEHI_NO is not null and l.c >="+ts;
+        sql += tj;
+        sql += " order by l.TIME desc";
+        List<Map<String, Object>>list=jdbcTemplate.queryForList(sql);
+        return jacksonUtil.toJson(list);
+    }
+    //查询开始时间，结束时间的间隔天数
+    private static long getDaySub(String beginDateStr,String endDateStr){
+        long day=0;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date beginDate;
+        Date endDate;
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -1); //得到前一天
+        Date date = null;
+        try {
+            date = format.parse(format.format(calendar.getTime()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        try {
+            beginDate = format.parse(beginDateStr);
+            endDate= format.parse(endDateStr);
+            if(endDate.getTime()>date.getTime()){
+                day=(date.getTime()-beginDate.getTime())/(24*60*60*1000);
+            }else{
+                day=(endDate.getTime()-beginDate.getTime())/(24*60*60*1000);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return day;
+    }
+
+    //上线无营运车辆
+    public String findNoOperatingVehicleOnLine(HttpServletRequest request) {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        String company=request.getParameter("company");
+        String riqi = startTime.substring(2, 4)+startTime.substring(5, 7);
+        String tj="";
+        String tj2="";
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj +=" and v.ba_name='"+company+"'";
+        }
+        if(startTime!=null&&!startTime.isEmpty()&&!startTime.equals("null")&&startTime.length()>0){
+            tj +=" and ol.db_time >=to_date('"+startTime+"','yyyy-MM-dd')";
+            tj2 +=" and shangche>=to_date('"+startTime+" 00:00:00','yyyy-MM-dd HH24:mi:ss')";
+        }
+        if(endTime!=null&&!endTime.isEmpty()&&!endTime.equals("null")&&endTime.length()>0){
+            tj +=" and ol.db_time <=to_date('"+endTime+"','yyyy-MM-dd')";
+            tj2 +=" and shangche<=to_date('"+endTime+" 23:59:59','yyyy-MM-dd HH24:mi:ss')";
+        }
+        String sql="select v.vehi_no,v.comp_name,v.own_name,v.own_tel,v.vehi_sim,v.ba_name,to_char(max(ol.db_time),'yyyy-MM-dd') online_time" +
+                " from TB_TAXI_ONLINE_"+riqi+"@db69 ol,VW_VEHICLE@db69 v" +
+                " where  v.vehi_no = ol.vehi_no and v.vehi_no in (select distinct '浙'||vhic vhic from TB_JJQ_STATIC@db69 "+
+                " where '浙'||vhic NOT in (select distinct '浙'||vhic from TB_JJQ_STATIC@db69  where \"Y/N\" ='Y'";
+        sql += tj2;
+        sql += "))";
+        sql += tj;
+        sql += "group by v.vehi_no,v.comp_name,v.own_name,v.own_tel,v.vehi_sim,v.ba_name order by v.vehi_no";
+        List<Map<String, Object>>list=jdbcTemplate.queryForList(sql);
+        return jacksonUtil.toJson(list);
+    }
+
+    //营运未上线车辆导出
+    public String findOperatingUnlisted(HttpServletRequest request) {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        String company=request.getParameter("company");
+        long ts = getDaySub(startTime, endTime)+1;
+        String tj="";
+        String tj2="";
+        String tj3="";
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj3 +=" and v.ba_name='"+company+"'";
+        }
+        if(startTime!=null&&!startTime.isEmpty()&&!startTime.equals("null")&&startTime.length()>0){
+            tj +=" and db_time >=to_date('"+startTime+"','yyyy-MM-dd')";
+            tj2 +=" and shangche>=to_date('"+startTime+" 00:00:00','yyyy-MM-dd HH24:mi:ss')";
+        }
+        if(endTime!=null&&!endTime.isEmpty()&&!endTime.equals("null")&&endTime.length()>0){
+            tj +=" and db_time <=to_date('"+endTime+"','yyyy-MM-dd')";
+            tj2 +=" and shangche<=to_date('"+endTime+" 23:59:59','yyyy-MM-dd HH24:mi:ss')";
+        }
+        String sql="select a.*,v.* "+
+                " from (select vehi_no,to_char(max(online_time),'yyyy-MM-dd hh24:mi:ss') online_time from TB_TAXI_NOT_ONLINE@db69" +
+                " where vehi_no is not null ";
+        sql += tj;
+        sql += " and vehi_no in  (select distinct '浙'||vhic from TB_JJQ_STATIC@db69  where \"Y/N\" ='Y'";
+        sql += tj2;
+        sql += ") group by vehi_no having count(1)>="+ts+" ) a";
+        sql +=" left join (select vehi_no vehi_num,comp_name,own_name,own_tel,vehi_sim,ba_name from VW_VEHICLE@db69 ) v" +
+                " on v.vehi_num=a.vehi_no where 1=1" ;
+        sql += tj3;
+        sql += " order by a.vehi_no";
+        List<Map<String, Object>>list=jdbcTemplate.queryForList(sql);
+        return jacksonUtil.toJson(list);
+    }
+
+    //未上线未营运车辆
+    public String findUnoperatedVehicle(HttpServletRequest request) {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        String company=request.getParameter("company");
+        long ts = getDaySub(startTime, endTime)+1;
+        String tj="";
+        String tj2="";
+        String tj3="";
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj3 +=" and v.ba_name='"+company+"'";
+        }
+        if(startTime!=null&&!startTime.isEmpty()&&!startTime.equals("null")&&startTime.length()>0){
+            tj +=" and db_time >=to_date('"+startTime+"','yyyy-MM-dd')";
+            tj2 +=" and shangche>=to_date('"+startTime+" 00:00:00','yyyy-MM-dd HH24:mi:ss')";
+        }
+        if(endTime!=null&&!endTime.isEmpty()&&!endTime.equals("null")&&endTime.length()>0){
+            tj +=" and db_time <=to_date('"+endTime+"','yyyy-MM-dd')";
+            tj2 +=" and shangche<=to_date('"+endTime+" 23:59:59','yyyy-MM-dd HH24:mi:ss')";
+        }
+        String sql="select v.vehi_no,v.vehi_num,v.comp_name,v.own_name,v.own_tel,v.vehi_sim,v.ba_name from VW_VEHICLE@db69 v" +
+                " where v.vehi_no in (select vehi_no from TB_TAXI_NOT_ONLINE@db69 where vehi_no is not null";
+        sql += tj;
+        sql += " group by vehi_no having count(1)>="+ts+" )" +
+                " and vehi_no not in (select distinct '浙'||vhic from TB_JJQ_STATIC@db69  where \"Y/N\" ='Y'";
+        sql += tj2;
+        sql += ")";
+        sql += tj3;
+        sql += " order by v.vehi_no";
+        List<Map<String, Object>>list=jdbcTemplate.queryForList(sql);
+        return jacksonUtil.toJson(list);
+    }
+
+    //无空重车变化车辆
+    public String findNoEmptyVehicleChange(HttpServletRequest request) {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        String company=request.getParameter("company");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date dBegin = null,dEnd = null;
+        try {
+            dBegin = sdf.parse(startTime);
+            dEnd = sdf.parse(endTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        List<Date> lDate = findDates(dBegin, dEnd);
+        String riqi = "";
+        for (Date date : lDate) {
+            riqi += sdf.format(date)+",";
+        }
+        if(riqi.equals("")){
+            return "[]";
+        }
+        String[] a = riqi.substring(0, riqi.length()-1).split(",");
+        String tj="";
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj +=" and v.ba_name='"+company+"'";
+        }
+        if(startTime!=null&&!startTime.isEmpty()&&!startTime.equals("null")&&startTime.length()>0){
+            tj +=" and x.xztime >=to_date('"+startTime+"','yyyy-MM-dd')";
+        }
+        if(endTime!=null&&!endTime.isEmpty()&&!endTime.equals("null")&&endTime.length()>0){
+            tj +=" and x.xztime <=to_date('"+endTime+"','yyyy-MM-dd')";
+        }
+        String sql="select ";
+        for (int i = 0; i < a.length; i++) {
+            sql += " m"+(i+1)+".state as m"+(i+1)+",";
+        }
+        sql += " a.* from (select distinct x.vehi_no, v.comp_name, v.mt_name, v.mdt_sub_type from TB_TJ@db69 x ,vw_vehicle@db69 v "
+                + " where state is not null and x.vehi_no = v.VEHI_NO";
+        sql += tj;
+        sql +=")a ";
+        for (int i = 0; i < a.length; i++) {
+            sql +=" left join  (select state,vehi_no from TB_TJ@db69 where xztime=to_date('"+a[i]+"','yyyy-mm-dd'))m"+(i+1)+
+                    " on a.vehi_no = m"+(i+1)+".vehi_no";
+        }
+        List<Map<String, Object>>list=jdbcTemplate.queryForList(sql);
+        return jacksonUtil.toJson(list);
+    }
+
+    //查询出两个日期间的所有日期
+    public List<Date> findDates(Date beginDate, Date endDate) {
+        List<Date> lDate = new ArrayList<Date>();
+        Calendar cal = Calendar.getInstance();
+        // 使用给定的 Date 设置此 Calendar 的时间
+        cal.setTime(beginDate);
+        if (cal.getTime().before(endDate) || cal.getTime().equals(endDate)) {
+            lDate.add(beginDate);// 把开始时间加入集合
+            boolean bContinue = true;
+            while (bContinue) {
+                // 根据日历的规则，为给定的日历字段添加或减去指定的时间量
+                cal.add(Calendar.DAY_OF_MONTH, 1);
+                // 测试此日期是否在指定日期之后
+                if (endDate.after(cal.getTime())) {
+                    lDate.add(cal.getTime());
+                } else {
+                    break;
+                }
+            }
+            if ( !beginDate.equals(endDate)) {
+                lDate.add(endDate);// 把结束时间加入集合
+            }
+        }
+        return lDate;
+    }
+}
+

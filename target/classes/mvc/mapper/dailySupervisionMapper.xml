@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--命名空间应该是对应接口的包名+接口名 -->
+<mapper namespace="mvc.mapper.dailySupervisionDao">
+	<select id="getAllDot" resultType="map">
+    	select r.areaid AreaNum,r.areacount,a.zhongxin,a.area_coordinates,a.area_size, a.area_name from 
+    	(select areaid, sum(areacount) areacount from  tb_fq_company_history where DATE_FORMAT(DBTime,'%Y-%m-%d %H') =  DATE_FORMAT(date_sub(NOW(), interval 1 hour),'%Y-%m-%d %H')   group by AreaID) r,
+    	tb_area_min a where r.areaid=a.area_id
+    </select>
+    
+    <select id="getAllDotForEBike" resultType="map">
+    	select r.areaid AreaNum,r.areacount,a.zhongxin,a.area_coordinates,a.area_size, a.area_name from 
+    	(select areaid, sum(areacount) areacount from  tb_fq_company_history_ebike where DATE_FORMAT(DBTime,'%Y-%m-%d %H') = DATE_FORMAT(date_sub(NOW(), interval 1 hour),'%Y-%m-%d %H')  group by AreaID) r,
+    	tb_area_min_ebike a where r.areaid=a.area_id
+    </select>
+    
+    
+   <select id="getDotByCompany" resultType="map">
+   	select * from tb_cluster_company where  companyid =  #{companyid} and DATE_FORMAT(DBTime,'%Y-%m-%d %H') = DATE_FORMAT(date_sub(NOW(), interval 1 hour),'%Y-%m-%d %H') 
+   	<if test="zoom  &gt;= 13 and zoom &lt;=  14 ">
+    	 	and areatype = '2'
+    	</if>
+    	<if test="zoom  &gt;= 11 and zoom &lt;=  12 ">
+    	 	and areatype = '1'
+    	</if>
+    	<if test=" zoom &lt;= 10 ">
+    	 	and areatype = '0'
+    	</if>
+   </select>
+   
+    <select id="getDotByCompanyForEBike" resultType="map">
+   	select * from tb_ebike_cluster_company where  companyid =  #{companyid} and DATE_FORMAT(DBTime,'%Y-%m-%d %H') = DATE_FORMAT(date_sub(NOW(), interval 1 hour),'%Y-%m-%d %H') 
+   	<if test="zoom  &gt;= 13 and zoom &lt;=  14 ">
+    	 	and areatype = '2'
+    	</if>
+    	<if test="zoom  &gt;= 11 and zoom &lt;=  12 ">
+    	 	and areatype = '1'
+    	</if>
+    	<if test=" zoom &lt;= 10 ">
+    	 	and areatype = '0'
+    	</if>
+   </select>
+   
+   <select id="getNoDotByCompany" resultType="map">
+   	select * from tb_cluster_company_expire where  companyid =  #{companyid} and DATE_FORMAT(DBTime,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') and ExpireType =  #{day} 
+   	<if test="zoom  &gt;= 13 and zoom &lt;=  14 ">
+    	 	and areatype = '2'
+    	</if>
+    	<if test="zoom  &gt;= 11 and zoom &lt;=  12 ">
+    	 	and areatype = '1'
+    	</if>
+    	<if test=" zoom &lt;= 10 ">
+    	 	and areatype = '0'
+    	</if>
+   </select>
+   
+    <select id="getNoDotByCompanyForEBike" resultType="map">
+   	select * from tb_cluster_ebike_expire where  companyid =  #{companyid} and DATE_FORMAT(DBTime,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')  and ExpireType =  #{day} 
+   	<if test="zoom  &gt;= 13 and zoom &lt;=  14 ">
+    	 	and areatype = '2'
+    	</if>
+    	<if test="zoom  &gt;= 11 and zoom &lt;=  12 ">
+    	 	and areatype = '1'
+    	</if>
+    	<if test=" zoom &lt;= 10 ">
+    	 	and areatype = '0'
+    	</if>
+   </select>
+   	<select id="oneBike" resultType="map">
+   		select s.*,c.CompanyName_JC from tb_bike_status_realtime s,tb_bike_company c where s.CompanyId=c.companyid and bicycleno = #{bike}
+   	</select>
+   	
+  	<select id="oneBikeForEBike" resultType="map">
+   		select s.*,c.CompanyName_JC from tb_ebike_status_realtime s,tb_bike_company c where s.CompanyId=c.companyid and bicycleno = #{bike}
+   	</select>
+   	
+   <select  id="findPerson" resultType="map">
+   	 select p.*,c.companyname_jc 
+   	 from tb_bike_operation p,tb_bike_company c 
+   	 where c.companyid=p.companyid and p.longi is not null and p.name like CONCAT('%',#{name},'%')
+   </select>
+   <select  id="qyjk" resultType="map">
+   	 select *, area_num - area_max_num as num from tb_bike_area  ORDER BY num  DESC
+   </select>
+    <select  id="getZxc" resultType="map">
+   	 select t.bike_station_name,case t.bike_station_state when '1' then '正常运营' when '2' then '暂停运营' when '3' then '已撤销' else '其他' end as bike_station_state,
+   	 t.total_piles, t2.available as  rentable_piles,(t.total_piles - t2.available ) as free_piles,t.geo_lng,t.geo_lat,DATE_FORMAT(t2.scanTime,'%Y-%c-%d %H:%i:%s') as update_date  from tn_pub_bike_station t,tb_bicycle_stop_status_update t2 where t.bike_station_code = t2.stopSn  
+   	 <if test=" name != '' ">
+    	 	and bike_station_name like '%${name}%'
+   	</if> 
+   </select>
+   <select  id="getYwryCount" resultType="map">
+   	select t.renzong,t.companyname_jc,case  when ISNULL(t1.bikezong) then t2.ebikezong else t1.bikezong end as bikezong ,case  when ISNULL(t1.bikezong) then truncate( t2.ebikezong / t.renzong ,0) else truncate(t1.bikezong /t.renzong ,0)end as zhanbi  from 
+   	(select count(p.CompanyId) as renzong,p.CompanyId,c.companyname_jc  from tb_bike_operation p,tb_bike_company c  where c.companyid=p.companyid  GROUP by c.companyname_jc,p.CompanyId ) t 
+   	LEFT JOIN (select count(bicycleno) as bikezong,CompanyId from tb_bike GROUP BY CompanyId) t1 on t.CompanyId=t1.companyid 
+	LEFT JOIN (select count(bicycleno) as ebikezong,CompanyId from tb_ebike GROUP BY CompanyId) t2 on t.CompanyId=t2.companyid
+   </select>
+</mapper>

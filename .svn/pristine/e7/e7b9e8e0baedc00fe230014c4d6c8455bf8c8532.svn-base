@@ -1,0 +1,224 @@
+package mvc.controllers;
+
+import com.alibaba.fastjson.TypeReference;
+import helper.DownloadAct;
+import helper.JacksonUtil;
+import mvc.service.DataStatisticsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * @author: xianlehuang
+ * @Description:数据统计
+ * @date: 2019/8/21 - 9:59
+ */
+@Controller
+@RequestMapping("/dataStatistics")
+public class DataStatisticsAction {
+
+    @Autowired
+    private DataStatisticsService dataStatisticsService;
+
+    private DownloadAct downloadAct = new DownloadAct();
+
+    //数据统计(里程统计，单车里程统计，车辆上线情况统计)
+    @RequestMapping(value = "/findDataStatistics")
+    @ResponseBody
+    public String findDataStatistics(HttpServletRequest request) {
+        String msg =dataStatisticsService.findDataStatistics(request);
+        return msg;
+    }
+
+    //数据统计(里程统计，单车里程统计，车辆上线情况统计)导出
+    @RequestMapping(value = "/findDataStatisticsExcel")
+    @ResponseBody
+    public String findDataStatisticsExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String a[] = {"时间","00:00","01:00", "02:00","03:00", "04:00", "05:00", "06:00","07:00", "08:00", "09:00", "10:00","11:00", "12:00", "13:00", "14:00","15:00", "16:00", "17:00", "18:00","19:00", "20:00", "21:00", "22:00","23:00"};//导出列明
+        String b[] = {"message","y0","y1","y2","y3","y4","y5","y6","y7","y8","y9","y10","y11","y12","y13","y14","y15","y16","y17","y18","y19","y20","y21","y22","y23"};//导出map中的key
+        String module = request.getParameter("module");
+        String gzb = "";//导出sheet名和导出的文件名
+        if(module.equals("zxyylfx")){
+            gzb ="在线营运率分析";
+        }else if(module.equals("MileageStatistics")){
+            gzb	="里程统计";
+        }else if(module.equals("CyclingMileageStatistics")){
+            gzb	="单车里程统计";
+        }else if(module.equals("VehicleOnlineStatistics")){
+            gzb	="车辆上线情况统计";
+        }else if(module.equals("zclfx")){
+            gzb	="重车率分析";
+        }
+        List<Map<String, Object>> list= DownloadAct.parseJSON2List2(dataStatisticsService.findDataStatistics(request));
+        DownloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+
+    //无营数据车辆
+    @RequestMapping(value = "/findNoCampDataVehicle")
+    @ResponseBody
+    public String findNoCampDataVehicle(HttpServletRequest request) {
+        String msg =dataStatisticsService.findNoCampDataVehicle(request);
+        return msg;
+    }
+
+    //无营数据车辆导出
+    @RequestMapping("/findNoCampDataVehicleExcel")
+    @ResponseBody
+    public String findNoCampDataVehicleExcel(HttpServletRequest request,HttpServletResponse response) throws IOException {
+        String a[] = {"公司", "车牌号码", "SIM卡号", "联系人", "联系电话"};
+        String b[] = {"COMP_NAME","VEHI_NO","VEHI_SIM","OWN_NAME","OWN_TEL"};
+        String gzb = "无营数据车辆";
+        List<Map<String, Object>> list = DownloadAct.parseJSON2List2(dataStatisticsService.findNoCampDataVehicle(request));
+        DownloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+    //未上线车辆查询
+    @RequestMapping(value = "/findUnlistedVehicle")
+    @ResponseBody
+    public String findUnlistedVehicle(HttpServletRequest request) {
+        String msg =dataStatisticsService.findUnlistedVehicle(request);
+        return msg;
+    }
+
+    //未上线车辆查询导出
+    @RequestMapping("/findUnlistedVehicleExcel")
+    @ResponseBody
+    public String findUnlistedVehicleExcel(HttpServletRequest request,HttpServletResponse response) throws IOException {
+        String a[] = {"公司名称","车牌号码","SIM卡号","终端类型","终端子类型","联系人","联系电话","最后上线时间"};//导出列明
+        String b[] = {"COMP_NAME","VEHI_NO","VEHI_SIM","MT_NAME","MDT_SUB_TYPE","OWN_NAME","HOME_TEL","TIME"};//导出map中的key
+        String gzb = "未上线车辆查询";
+        List<Map<String, Object>> list = DownloadAct.parseJSON2List2(dataStatisticsService.findUnlistedVehicle(request));
+        DownloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+    //上线无营运车辆
+    @RequestMapping(value = "/findNoOperatingVehicleOnLine")
+    @ResponseBody
+    public String findNoOperatingVehicleOnLine(HttpServletRequest request) {
+        String msg =dataStatisticsService.findNoOperatingVehicleOnLine(request);
+        return msg;
+    }
+
+    //上线无营运车辆导出
+    @RequestMapping("/findNoOperatingVehicleOnLineExcel")
+    @ResponseBody
+    public String findNoOperatingVehicleOnLineExcel(HttpServletRequest request,HttpServletResponse response) throws IOException {
+        String a[] = {"公司名称","车牌号码","SIM卡号","联系人","联系电话","最后上线时间"};//导出列明
+        String b[] = {"COMP_NAME","VEHI_NO","VEHI_SIM","OWN_NAME","OWN_TEL","ONLINE_TIME"};//导出map中的key
+        String gzb = "上线无营运车辆";
+        List<Map<String, Object>> list = DownloadAct.parseJSON2List2(dataStatisticsService.findNoOperatingVehicleOnLine(request));
+        DownloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+    //营运未上线车辆
+    @RequestMapping(value = "/findOperatingUnlisted")
+    @ResponseBody
+    public String findOperatingUnlisted(HttpServletRequest request) {
+        String msg =dataStatisticsService.findOperatingUnlisted(request);
+        return msg;
+    }
+
+    //营运未上线车辆导出
+    @RequestMapping("/findOperatingUnlistedExcel")
+    @ResponseBody
+    public String findOperatingUnlistedExcel(HttpServletRequest request,HttpServletResponse response) throws IOException {
+        String a[] = {"公司名称","车牌号码","SIM卡号","联系人","联系电话","最后上线时间"};//导出列明
+        String b[] = {"COMP_NAME","VEHI_NO","VEHI_SIM","OWN_NAME","OWN_TEL","ONLINE_TIME"};//导出map中的key
+        String gzb = "营运未上线车辆";
+        List<Map<String, Object>> list = DownloadAct.parseJSON2List2(dataStatisticsService.findOperatingUnlisted(request));
+        DownloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+    //未上线未营运车辆
+    @RequestMapping(value = "/findUnoperatedVehicle")
+    @ResponseBody
+    public String findUnoperatedVehicle(HttpServletRequest request) {
+        String msg =dataStatisticsService.findUnoperatedVehicle(request);
+        return msg;
+    }
+
+    //未上线未营运车辆导出
+    @RequestMapping("/findUnoperatedVehicleExcel")
+    @ResponseBody
+    public String findUnoperatedVehicleExcel(HttpServletRequest request,HttpServletResponse response) throws IOException {
+        String a[] = {"公司名称","车牌号码","SIM卡号","联系人","联系电话"};//导出列明
+        String b[] = {"COMP_NAME","VEHI_NO","VEHI_SIM","OWN_NAME","OWN_TEL"};//导出map中的key
+        String gzb = "未上线未营运车辆";
+        List<Map<String, Object>> list = DownloadAct.parseJSON2List2(dataStatisticsService.findUnoperatedVehicle(request));
+        DownloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+    //无空重车变化车辆
+    @RequestMapping(value = "/findNoEmptyVehicleChange")
+    @ResponseBody
+    public String findNoEmptyVehicleChange(HttpServletRequest request) {
+        String msg =dataStatisticsService.findNoEmptyVehicleChange(request);
+        return msg;
+    }
+
+    //无空重车变化车辆导出
+    @RequestMapping("/findNoEmptyVehicleChangeExcel")
+    @ResponseBody
+    public String findNoEmptyVehicleChangeExcel(HttpServletRequest request,HttpServletResponse response) throws IOException {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date dBegin = null,dEnd = null;
+        try {
+            dBegin = sdf.parse(startTime);
+            dEnd = sdf.parse(endTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        List<Date> Dates = dataStatisticsService.findDates(dBegin, dEnd);
+        //jdk1.8
+        List<String> lDate = Dates.stream().map(sdf::format).collect(Collectors.toList());
+        String a[] = new String[lDate.size()+2];//导出列明
+        String b[] = new String[lDate.size()+2];//导出map中的key
+        a[0] = "公司";
+        a[1] = "车牌号码";
+        b[0] = "COMP_NAME";
+        b[1] = "VEHI_NO";
+        for (int i = 0; i < lDate.size() ; i++) {
+            a[i+2]=lDate.get(i);
+            b[i+2]="M"+(i+1);
+        }
+        String gzb = "无空重车变化车辆";
+        List<Map<String, Object>> list = DownloadAct.parseJSON2List2(dataStatisticsService.findNoEmptyVehicleChange(request));
+        DownloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+
+    //无签到签退查询
+    @RequestMapping("/findUnSignInAndSignOff")
+    @ResponseBody
+    public String findUnSignInAndSignOff(HttpServletRequest request){
+        return dataStatisticsService.findUnSignInAndSignOff(request);
+    }
+    //无签到签退导出
+    @RequestMapping("/findUnSignInAndSignOffExcel")
+    @ResponseBody
+    public String findUnSignInAndSignOffExcel(HttpServletRequest request,HttpServletResponse response) throws IOException {
+        String a[] = {"公司名称","车牌号码","SIM卡号","联系人","联系电话","最近签到时间","最近签退时间"};//导出列明
+        String b[] = {"COMP_NAME","VEHI_NO","VEHI_SIM","OWN_NAME","OWN_TEL","LOGINTIME","LOGOUTTIME"};//导出map中的key
+        String gzb = "无签到签退";//导出sheet名和导出的文件名
+        List<Map<String, Object>> list = DownloadAct.parseJSON2List2(dataStatisticsService.findUnSignInAndSignOff(request));
+        DownloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+
+}

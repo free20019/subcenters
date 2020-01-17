@@ -1,0 +1,89 @@
+package mvc.controllers;
+
+
+
+import mvc.service.CommonServer;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+
+@Controller
+@RequestMapping(value = "/common")
+public class CommonAction {
+	private CommonServer commonService;
+
+	public CommonServer getCommonServer() {
+		return commonService;
+	}
+
+	@Autowired
+	public void setCommonServer(CommonServer commonService) {
+		this.commonService = commonService;
+	}
+
+	//车牌
+	@RequestMapping("/vehicle")
+	@ResponseBody
+	public String getVehicle(){
+		String msg=commonService.getVehicle();
+		return msg;
+	}
+
+	//公司
+	@RequestMapping("/company")
+	@ResponseBody
+	public String getCompany(){
+		String msg=commonService.getCompany();
+		return msg;
+	}
+
+	//车牌号变更申请_新车牌
+	@RequestMapping("/newVehicle")
+	@ResponseBody
+	public String getNewVehicle(){
+		String msg=commonService.getNewVehicle();
+		return msg;
+	}
+
+	//车辆组
+	@RequestMapping("/groupVehicle")
+	@ResponseBody
+	public String getGroupVehicle(HttpServletRequest request){
+		String msg=commonService.getGroupVehicle(request);
+		return msg;
+	}
+
+	//岗位
+	@RequestMapping("/station")
+	@ResponseBody
+	public String getStation(){
+		String msg=commonService.getStation();
+		return msg;
+	}
+
+	//用户管理公司
+	@RequestMapping("/userCompany")
+	@ResponseBody
+	public String getUserCompany(){
+		String msg=commonService.getUserCompany();
+		return msg;
+	}
+	//功能列表
+	@RequestMapping("/power")
+	@ResponseBody
+	public String getPower(){
+		String msg=commonService.getPower();
+		return msg;
+	}
+
+    @RequestMapping(value = "/login")
+    @ResponseBody
+    public String login(HttpServletRequest request,@RequestParam("username") String username,@RequestParam("password") String password) {
+		return commonService.login(request,username,password);
+    }
+}

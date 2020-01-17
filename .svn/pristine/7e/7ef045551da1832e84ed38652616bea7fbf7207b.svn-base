@@ -1,0 +1,79 @@
+package mvc.controllers;
+
+import helper.DownloadAct;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import mvc.service.CommonServer;
+import mvc.service.bikeServer;
+import mvc.service.mapServer;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping(value = "/map")
+public class mapAction {
+	private mapServer mapServer;
+	
+	public mapServer getMapServer() {
+		return mapServer;
+	}
+	@Autowired
+	public void setMapServer(mapServer mapServer) {
+		this.mapServer = mapServer;
+	}
+	@RequestMapping("/getVhic")
+	@ResponseBody
+	public String getVhic(@RequestParam("vhic") String vhic){
+		String msg = mapServer.getVhic(vhic);
+		return msg;
+	}
+	@RequestMapping("/getHistory")
+	@ResponseBody
+	public String getHistory(HttpServletRequest request){
+		String msg = mapServer.getHistory(request);
+		return msg;
+	}
+	@RequestMapping("/lostFound")
+	@ResponseBody
+	public String swcz(String qd_stime,String qd_etime,
+			String zd_stime,String zd_etime,
+			String qd_jwd,String zd_jwd){
+		String msg = mapServer.swcz(qd_stime,qd_etime,zd_stime,zd_etime,qd_jwd,zd_jwd);
+		return msg;
+	}
+	@RequestMapping("/getComp")
+	@ResponseBody
+	public String getComp(HttpServletRequest request){
+		String msg = mapServer.getComp();
+		return msg;
+	}
+	@RequestMapping("/getVhicList")
+	@ResponseBody
+	public String getVhicList(@RequestParam("id") String id){
+		String msg = mapServer.getVhicList(id);
+		return msg;
+	}
+	@RequestMapping("/getOneVhic")
+	@ResponseBody
+	public String getOneVhic(HttpServletRequest request){
+		String msg = mapServer.getOneVhic(request);
+		return msg;
+	}
+	@RequestMapping("/getMonitor")
+	@ResponseBody
+	public String getMonitor() {
+		String msg = mapServer.qyjk();
+		return msg;
+	}
+}

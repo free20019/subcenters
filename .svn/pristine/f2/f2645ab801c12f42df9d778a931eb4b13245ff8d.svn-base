@@ -1,0 +1,151 @@
+package mvc.controllers;
+
+import helper.DownloadAct;
+import mvc.service.BasicDataService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author: xianlehuang
+ * @Description:
+ * @date: 2019/9/2 - 15:22
+ */
+@Controller
+@RequestMapping("/basicData")
+public class BasicDataAction {
+
+    @Autowired
+    BasicDataService basicDataService;
+
+    private DownloadAct downloadAct=new DownloadAct();
+
+    //转入,转出申请查询
+    @RequestMapping("/findPlatformUsageRecord")
+    @ResponseBody
+    public String findPlatformUsageRecord(HttpServletRequest request){
+        String msg = basicDataService.findPlatformUsageRecord(request);
+        return msg;
+    }
+
+    //转入,转出申请导出
+    @RequestMapping(value = "/findPlatformUsageRecordExcel")
+    @ResponseBody
+    public String findPlatformUsageRecordExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String a[] = {"账号","公司","登录时间"};//导出列明
+        String b[] = {"USER_NAME","REAL_NAME","LOGIN_TIME"};//导出map中的key
+        String gzb = "平台使用情况";//导出sheet名和导出的文件名
+        List<Map<String, Object>> list= downloadAct.parseJSON2List2(basicDataService.findPlatformUsageRecord(request));
+        downloadAct.download(request, response, a, b, gzb, list);
+        return null;
+    }
+
+    //车辆组查询
+    @RequestMapping("/findVehicleGroup")
+    @ResponseBody
+    public String findVehicleGroup(HttpServletRequest request){
+        String msg = basicDataService.findVehicleGroup(request);
+        return msg;
+    }
+
+    //添加车辆组
+    @RequestMapping("/addVehicleGroup")
+    @ResponseBody
+    public String addVehicleGroup(HttpServletRequest request){
+        return basicDataService.addVehicleGroup(request);
+    }
+
+    //修改车辆组
+    @RequestMapping("/updateVehicleGroup")
+    @ResponseBody
+    public String updateVehicleGroup(HttpServletRequest request){
+        return basicDataService.updateVehicleGroup(request);
+    }
+
+    //删除车辆组
+    @RequestMapping("/deleteVehicleGroup")
+    @ResponseBody
+    public String deleteVehicleGroup(HttpServletRequest request){
+        return basicDataService.deleteVehicleGroup(request);
+    }
+
+    //车辆组查询详情
+    @RequestMapping("/findVehicleGroupDetail")
+    @ResponseBody
+    public String findVehicleGroupDetail(HttpServletRequest request){
+        String msg = basicDataService.findVehicleGroupDetail(request);
+        return msg;
+    }
+    //用户管理查询
+    @RequestMapping("/findUserManage")
+    @ResponseBody
+    public String findUserManage(HttpServletRequest request){
+        String msg = basicDataService.findUserManage(request);
+        return msg;
+    }
+
+    //添加用户
+    @RequestMapping("/addUserManage")
+    @ResponseBody
+    public String addUserManage(HttpServletRequest request){
+        return basicDataService.addUserManage(request);
+    }
+
+    //修改用户
+    @RequestMapping("/updateUserManage")
+    @ResponseBody
+    public String updateUserManage(HttpServletRequest request){
+        return basicDataService.updateUserManage(request);
+    }
+
+    //删除用户
+    @RequestMapping("/deleteUserManage")
+    @ResponseBody
+    public String deleteUserManage(HttpServletRequest request){
+        return basicDataService.deleteUserManage(request);
+    }
+
+    //用户详情
+    @RequestMapping("/findUserManageDetail")
+    @ResponseBody
+    public String findUserManageDetail(HttpServletRequest request){
+        String msg = basicDataService.findUserManageDetail(request);
+        return msg;
+    }
+
+    //岗位管理查询
+    @RequestMapping("/findJobManage")
+    @ResponseBody
+    public String findJobManage(HttpServletRequest request){
+        String msg = basicDataService.findJobManage(request);
+        return msg;
+    }
+
+    //添加岗位
+    @RequestMapping("/addJobManage")
+    @ResponseBody
+    public String addJobManage(HttpServletRequest request){
+        return basicDataService.addJobManage(request);
+    }
+
+    //修改岗位
+    @RequestMapping("/updateJobManage")
+    @ResponseBody
+    public String updateJobManage(HttpServletRequest request){
+        return basicDataService.updateJobManage(request);
+    }
+
+    //删除岗位
+    @RequestMapping("/deleteJobManage")
+    @ResponseBody
+    public String deleteJobManage(HttpServletRequest request){
+        return basicDataService.deleteJobManage(request);
+    }
+}

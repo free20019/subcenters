@@ -1,0 +1,386 @@
+package mvc.service;
+
+import helper.Client;
+import helper.GeometryHandler;
+import helper.JacksonUtil;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+
+import mvc.cache.DataItem;
+import mvc.cache.GisData;
+import mvc.entity.TbCompany;
+import mvc.entity.Vehicle;
+import mvc.mapper.bikeDao;
+import mvc.mapper.mapDao;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.ibatis.annotations.Param;
+import org.codehaus.jackson.type.TypeReference;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import com.service.GpsServicesDelegate;
+import com.vividsolutions.jts.geom.Geometry;
+
+
+@Service
+public class mapServer{
+	@Autowired
+	protected JdbcTemplate jdbcTemplate;
+	private JacksonUtil jacksonUtil = JacksonUtil.buildNormalBinder();
+	private static  String WS_URL = "http://192.168.0.102:9086/EWS/GpsServicesPort?WSDL";
+	private static final double EARTH_RADIUS = 6378137;
+	public String getVhic(String vhic){
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		if(vhic.length()<2){
+			return jacksonUtil.toJson(list);
+		}
+		String sql = "select vehi_no,MDT_NO,VEHI_SIM from vw_vehicle t where vehi_no"
+				+ " like '%"+vhic+"%' or mdt_no like '%"+vhic+"%' or vehi_sim like '%"+vhic+"%'";
+		list = jdbcTemplate.queryForList(sql);
+		for (int i = 0; i < list.size(); i++) {
+			list.get(i).put("INFO", list.get(i).get("VEHI_NO")+"("+list.get(i).get("MDT_NO")+","+list.get(i).get("VEHI_SIM")+")");
+		}
+		return jacksonUtil.toJson(list);
+	}
+	public String getHistory(HttpServletRequest request) {
+		DecimalFormat df = new DecimalFormat("0.000");
+		String vhic = request.getParameter("vhic");
+		String stime = request.getParameter("stime");
+		String etime = request.getParameter("etime");
+		String table = stime.substring(2, 4) + stime.substring(5, 7);
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		try {
+			String sql = "select c.comp_name,t.vehicle_num,t.px,t.py,t.speed,t.direction,t.speed_time,state from HZGPS_TAXI.TB_GPS_"+table+" t,tb_company c,vw_vehicle v where"
+					+ " t.vehicle_num = v.vehi_no and c.comp_id = v.comp_id and vehicle_num = ? and"
+					+ " speed_time>= to_date(?,'yyyy-mm-dd hh24:mi:ss')"
+					+ " and speed_time<= to_date(?,'yyyy-mm-dd hh24:mi:ss') order by speed_time";
+			System.out.println(sql+"  "+vhic+"  "+stime+"  "+etime);
+			list = jdbcTemplate.queryForList(sql,vhic,stime,etime);
+		} catch (Exception e) {
+			return jacksonUtil.toJson(list);
+		}
+		double dou = 0.0;
+		for (int i = 0; i < list.size(); i++) {
+			if(i == 0){
+				list.get(i).put("MILEAGE", "0");
+			}else{
+				try {
+					dou = GetDistance(
+							Double.parseDouble(list.get(i-1).get("PX").toString()), 
+							Double.parseDouble(list.get(i-1).get("PY").toString()), 
+							Double.parseDouble(list.get(i).get("PX").toString()), 
+							Double.parseDouble(list.get(i).get("PY").toString()));
+					list.get(i).put("MILEAGE", df.format(dou/1000+
+							Double.parseDouble(list.get(i-1).get("MILEAGE").toString())));
+				} catch (Exception e) {
+					list.get(i).put("MILEAGE", "0");
+				}
+			}
+		}
+		return jacksonUtil.toJson(list);
+	}
+	private static double rad(double d) {
+       return d * Math.PI / 180.0;  
+    }  
+	public static double GetDistance(double lng1, double lat1, double lng2, double lat2) {  
+	        double radLat1 = rad(lat1);  
+	        double radLat2 = rad(lat2);  
+	        double a = radLat1 - radLat2;  
+	        double b = rad(lng1) - rad(lng2);  
+	        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2) +   
+	         Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2)));  
+	        s = s * EARTH_RADIUS;  
+	        s = Math.round(s * 10000) / 10000;  
+	        return s;  
+    }  
+	public String swcz(String qd_stime, String qd_etime, String zd_stime,
+			String zd_etime, String qd_jwd, String zd_jwd) {
+		List<String> list = new ArrayList<String>();
+		String s1 = "",s2 = "",s3 = "";
+		List<Vehicle> listqd = new ArrayList<Vehicle>();
+		List<Vehicle> listzd = new ArrayList<Vehicle>();
+		if(qd_jwd!=null&&qd_jwd.length()>0){
+			s1=swczff(qd_stime,qd_etime,qd_jwd,"1");
+			JSONObject json = JSONObject.fromObject(s1);
+	        list.add(json.getString("result0"));
+	        JSONObject json1 =  JSONObject.fromObject(json.getString("result0"));
+	        Set setqd = json1.keySet();
+	        Iterator it = setqd.iterator();
+	    	 String a = "";
+	    	 while(it.hasNext()) {
+	    		 a=(String) it.next();
+	    		 Vehicle v = new Vehicle();
+	    		 v.setVehi_no(a);
+	    		 v.setStime(json1.get(a).toString().split("\\[")[0].substring(0, json1.get(a).toString().split("\\[")[0].length()-1));
+	    		 v.setPx(json1.get(a).toString().split("\\[")[1].substring(0, json1.get(a).toString().split("\\[")[1].length()-1));
+	    		 listqd.add(v);
+	    	 }  
+		}
+		
+		if(zd_jwd!=null&&zd_jwd.length()>0){
+			s2=swczff(zd_stime,zd_etime,zd_jwd,"2");
+			JSONObject json = JSONObject.fromObject(s2);
+	        list.add(json.getString("result0"));
+	        JSONObject json1 =  JSONObject.fromObject(json.getString("result0"));
+	        Set setzd = json1.keySet();
+	        Iterator it = setzd.iterator();
+	    	 String a = "";
+	    	 while(it.hasNext()) {
+	    		 a=(String) it.next();
+	    		 Vehicle v = new Vehicle();
+	    		 v.setVehi_no(a);
+	    		 v.setStime(json1.get(a).toString().split("\\[")[0].substring(0, json1.get(a).toString().split("\\[")[0].length()-1));
+	    		 v.setPx(json1.get(a).toString().split("\\[")[1].substring(0, json1.get(a).toString().split("\\[")[1].length()-1));
+	    		 listzd.add(v);
+	    	 }  
+		}
+		List<Vehicle> listjg = new ArrayList<Vehicle>();
+		if(list.size()==2){
+			Set aSet = new HashSet();
+        	JSONObject json11=JSONObject.fromObject(list.get(0));
+        	JSONObject json2;
+        	 json2=JSONObject.fromObject(list.get(1));
+        	 Set s11=json11.keySet();
+        	 Set s22=json2.keySet();
+        	 aSet.addAll(s11);
+        	 aSet.retainAll(s22);
+        	 Iterator it = aSet.iterator();
+	    	 String a = "";
+	    	 while(it.hasNext()) {  
+	    		 a=(String) it.next();
+	    		 Vehicle v = new Vehicle();
+	    		 v.setVehi_no(a);
+	    		 v.setStime(json11.get(a).toString().split("\\[")[0].substring(0, json11.get(a).toString().split("\\[")[0].length()-1));
+	    		 v.setPx(json11.get(a).toString().split("\\[")[1].substring(0, json11.get(a).toString().split("\\[")[1].length()-1));
+	    		 listjg.add(v);
+	    	 }  
+        }else{
+        	JSONObject json1;
+        	JSONObject json2;
+        	JSONObject json3;
+        	json1=JSONObject.fromObject(list.get(0));
+       	 	json2=JSONObject.fromObject(list.get(1));
+       	 	json3=JSONObject.fromObject(list.get(2));
+       	 	Set aSet = new HashSet();
+	       	 Set s11=json1.keySet();
+	    	 Set s22=json2.keySet();
+	    	 Set s33=json3.keySet();
+	    	 aSet.addAll(s11);
+	    	 aSet.retainAll(s22);
+	    	 aSet.retainAll(s33);
+	    	 Iterator it = aSet.iterator();  
+	    	 String a = "";
+	    	 while(it.hasNext()) {  
+	    		 a=(String) it.next();
+	    		 Vehicle v = new Vehicle();
+	    		 v.setVehi_no(a);
+	    		 v.setStime(json1.get(a).toString().split("\\[")[0].substring(0, json1.get(a).toString().split("\\[")[0].length()-1));
+	    		 v.setPx(json1.get(a).toString().split("\\[")[1].substring(0, json1.get(a).toString().split("\\[")[1].length()-1));
+	    		 listjg.add(v);
+	    	 }
+        }
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("qd", listqd);
+		map.put("zd", listzd);
+		map.put("jg", listjg);
+		return jacksonUtil.toJson(map);
+	}
+	public String swczff(String stime,String etime,String jwd,String obj){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		long st = 0,et = 0;
+		try {
+			st = sdf.parse(stime).getTime();
+			et = sdf.parse(etime).getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		URL url = null;
+		try {
+			url = new URL(WS_URL);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+        QName qname = new QName("http://service.com/", "GpsServicesService");
+        javax.xml.ws.Service service = javax.xml.ws.Service.create(url, qname);
+        GpsServicesDelegate gpsService = service.getPort(GpsServicesDelegate.class);
+        Map<String, Object> req_ctx = ((BindingProvider)gpsService).getRequestContext();
+        List qy = new ArrayList();
+        Calendar calendar = Calendar.getInstance() ,calendar2 = Calendar.getInstance();
+        calendar.set(2016, 4, 31, 18, 30, 22);
+		calendar2.set(2016, 4,31, 18, 50, 22);
+        qy.add(jwd);
+        String  result = gpsService.swcz3Day(qy, st, et);
+        return result;
+	}
+	public String getComp(){
+		String sql = "select b.ba_id,b.ba_name,nvl(a.c,0) c from TB_BUSI_AREA b left join"
+				+ " (select t.ba_id,count(1) c from TB_BUSI_AREA t,vw_vehicle v where t.ba_id"
+				+ " = v.ba_id group by t.ba_id) a on a.ba_id = b.ba_id order by ba_name";
+		List<Map<String, Object>> area = jdbcTemplate.queryForList(sql);
+		String com = "select b.comp_id,b.comp_name,nvl(a.c,0) c,b.ba_id from tb_company b left join"
+				+ " (select t.comp_id,count(1) c from tb_company t,vw_vehicle v where t.comp_id"
+				+ " = v.comp_id group by t.comp_id) a on a.comp_id = b.comp_id order by comp_name";
+		List<Map<String, Object>> comp = jdbcTemplate.queryForList(com);
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+    	
+		for (int i = 0; i < area.size(); i++) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("label", area.get(i).get("BA_NAME")+"("+area.get(i).get("C")+")");
+			map.put("value", area.get(i).get("BA_ID"));
+			List<Map<String, Object>> children = new ArrayList<Map<String, Object>>();
+			for (int j = 0; j < comp.size(); j++) {
+				if(String.valueOf(area.get(i).get("ba_id")).equals(String.valueOf(comp.get(j).get("ba_id")))){
+					Map<String, Object> m = new HashMap<String, Object>();
+					m.put("label", comp.get(j).get("COMP_NAME")+"("+comp.get(j).get("C")+")");
+					m.put("value", comp.get(j).get("COMP_ID"));
+					children.add(m);
+				}
+			}
+			if(children.size() > 0 ){
+				map.put("children", children);
+			}
+			list.add(map);
+		}
+		return jacksonUtil.toJson(list);
+	}
+	public String getVhicList(String id){
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		String sql = "select v.vehi_no,v.ba_name,v.comp_name,v.mdt_no,v.vehi_sim,v.mdt_sub_type,s.px,s.py,s.stime,s.speed"
+				+ ",s.state,s.angle from vw_vehicle v left join tb_mdt_status s on v.vehi_id = s.vehi_id  where 1=1";
+		if(!String.valueOf(id).equals("null")){
+			if(id.length() == 5){
+				sql += " and v.ba_id = '"+id+"'";
+			}else{
+				sql += " and v.comp_id = '"+id+"'";
+			}
+		}
+		sql += " order by vehi_no";
+		list = jdbcTemplate.queryForList(sql);
+		for(int i=0; i<list.size();i++){
+			if(!String.valueOf(list.get(i).get("STIME")).equals("null")&&jisuan(String.valueOf(list.get(i).get("STIME")))){
+				if(String.valueOf(list.get(i).get("STATE")).equals("1")){
+					list.get(i).put("FX", utilFx(String.valueOf(list.get(i).get("ANGLE")),"z"));
+				}else{
+					list.get(i).put("FX", utilFx(String.valueOf(list.get(i).get("ANGLE")),"k"));
+				}
+			}else{
+				list.get(i).put("FX", utilFx(String.valueOf(list.get(i).get("ANGLE")),"l"));
+			}
+		}
+		return jacksonUtil.toJson(list);
+	}
+	public String utilFx(String fx,String icon){
+		try {
+			if(Integer.parseInt(fx) == 0 ||Integer.parseInt(fx) == 360){
+				return icon + "1";
+			}else if(Integer.parseInt(fx) >0 &&Integer.parseInt(fx) <90){
+				return icon + "2";
+			}else if(Integer.parseInt(fx) == 90){
+				return icon + "3";
+			}else if(Integer.parseInt(fx) >90 &&Integer.parseInt(fx) <180){
+				return icon + "4";
+			}else if(Integer.parseInt(fx) == 180){
+				return icon + "5";
+			}else if(Integer.parseInt(fx) >180 &&Integer.parseInt(fx) <270){
+				return icon + "6";
+			}else if(Integer.parseInt(fx) == 270){
+				return icon + "7";
+			}else if(Integer.parseInt(fx) >270 &&Integer.parseInt(fx) <360){
+				return icon + "8";
+			}
+		} catch (Exception e) {
+			return icon + "1";
+		}
+		return icon + "1";
+	}
+	public boolean jisuan(String date1){ 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+        double result=0;
+        try {
+            Date start = sdf.parse(date1);
+            Date end = new Date();
+            long cha = end.getTime() - start.getTime();
+            result = cha * 1.0 / (1000 * 60);
+            
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if(result<=30){ 
+            return true; 
+        }else{ 
+            return false; 
+        } 
+    }
+	public String getOneVhic(HttpServletRequest request){
+		String type = String.valueOf(request.getParameter("type"));
+		String vhic = String.valueOf(request.getParameter("vhic"));
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		if(type.equals("null")||vhic.equals("null")){
+			return jacksonUtil.toJson(list);
+		}
+		String sql = "select v.vehi_no,v.ba_name,v.comp_name,v.mdt_no,v.vehi_sim,v.mdt_sub_type,s.px,s.py,s.stime,s.speed"
+				+ ",s.state,s.angle from vw_vehicle v left join tb_mdt_status s on v.vehi_id = s.vehi_id  where 1=1";
+		if(type.equals("1")){
+			sql += " and v.vehi_no = '"+vhic+"'";
+		}else if(type.equals("2")){
+			sql += " and v.vehi_no in ("+vhic+")";
+		}
+		list = jdbcTemplate.queryForList(sql);
+		for (int i = 0; i < list.size(); i++) {
+			if(jisuan(String.valueOf(list.get(i).get("stime")))){
+				list.get(i).put("TYPE", "0");
+			}else{
+				list.get(i).put("TYPE", "1");
+			}
+		}
+		return jacksonUtil.toJson(list);
+	}
+	public String qyjk() {
+		DataItem data = (DataItem) GisData.map.get("data");
+		if(null != data){
+			Map map = new HashMap();
+			map.put("vehilist", data.getVehilist());
+			map.put("arealist",  data.getArealist());
+			map.put("num",  data.getNum());
+			//System.out.println(vehilist.size());
+			return jacksonUtil.toJson(map);
+		}
+		
+		return "{}";
+	}
+}
