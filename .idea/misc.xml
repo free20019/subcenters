@@ -11,13 +11,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectPlainTextFileTypeManager">
-    <file url="file://$PROJECT_DIR$/WebRoot/index.html" />
-    <file url="file://$PROJECT_DIR$/WebRoot/manifest.json" />
-    <file url="file://$PROJECT_DIR$/WebRoot/precache-manifest.670c1955e590d23206d2a28476254d6e.js" />
-    <file url="file://$PROJECT_DIR$/WebRoot/service-worker.js" />
-  </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
   <component name="SvnBranchConfigurationManager">
     <option name="myConfigurationMap">
       <map>

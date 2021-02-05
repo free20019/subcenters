@@ -1,15 +1,22 @@
 package mvc.service;
 
+import helper.ExcelUtil;
 import helper.JacksonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author: xianlehuang
@@ -22,7 +29,12 @@ public class LetterManagementService {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    CommonServer commonServer;
+
     private JacksonUtil jacksonUtil = JacksonUtil.buildNormalBinder();
+
+    private ExcelUtil excelUtil = new ExcelUtil();
 
     //转入,转出申请查询
     public String findTransferApplication(HttpServletRequest request) {
@@ -479,5 +491,976 @@ public class LetterManagementService {
         sql +=" group by a.old_vehicle_no,a.NEW_VEHICLE_NO,v.AREA_NAME  order by a.old_vehicle_no desc";
         List<Map<String, Object>>list=jdbcTemplate.queryForList(sql);
         return jacksonUtil.toJson(list);
+    }
+
+    //爱心业务用车记录查询
+    public String findLoveBusinessVehicleUseRecord(HttpServletRequest request) {
+        String startTime=request.getParameter("startTime");
+        String endTime=request.getParameter("endTime");
+        String type=request.getParameter("type");
+        String vehicle=request.getParameter("vehicle");
+        String phone=request.getParameter("phone");
+        String address=request.getParameter("address");
+        String user=request.getParameter("user");
+
+        String tj="";
+        if(startTime!=null&&!startTime.isEmpty()&&!startTime.equals("null")&&startTime.length()>0){
+            tj+=" and a.DISP_TIME >=to_date('"+startTime+" 00:00:00','yyyy-MM-dd HH24:mi:ss')";
+        }
+        if(endTime!=null&&!endTime.isEmpty()&&!endTime.equals("null")&&endTime.length()>0){
+            tj+=" and a.DISP_TIME <=to_date('"+endTime+" 23:59:59','yyyy-MM-dd HH24:mi:ss')";
+        }
+        if(type!=null&&!type.isEmpty()&&!type.equals("null")&&type.length()>0){
+            tj +=" and a.AUDIT_STATUS='"+type+"'";
+        }
+        if(vehicle!=null&&!vehicle.isEmpty()&&!vehicle.equals("null")&&vehicle.length()>0){
+            tj+=" and a.VEHI_NO1 ='"+vehicle+"'";
+        }
+        if(phone!=null&&!phone.isEmpty()&&!phone.equals("null")&&phone.length()>0){
+            tj+=" and a.CUST_TEL like '%"+phone+"%'";
+        }
+        if(address!=null&&!address.isEmpty()&&!address.equals("null")&&address.length()>0){
+            tj+=" and a.ADDRESS like '%"+address+"%'";
+        }
+        if(user!=null&&!user.isEmpty()&&!user.equals("null")&&user.length()>0){
+            tj+=" and a.COMMIT_PERSON = '"+user+"'";
+        }
+        //用户能管理的公司
+        String comps=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps").toString();
+        comps=comps==""?"''":comps;
+        //用户管理的車輛
+        String vehicles=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic").toString();
+        tj +=" and (1=0 or a.COMP_NAME1 in ("+comps+") "+Transformation(new ArrayList<String>(Arrays.asList(vehicles.split(",")))," a.VEHI_NO1")+" )";
+
+        String sql = "select a.* from TB_DISPATCH_LOVE@db69 a " +
+                "  where a.del_flag='0' and a.ADD_WAYS=1";
+        sql += tj;
+        sql +=" order by a.disp_time desc";
+        List<Map<String, Object>> list=jdbcTemplate.queryForList(sql);
+        if(list !=null){
+            for (int i = 0; i < list.size(); i++) {
+                list.get(i).put("DISP_TIME",list.get(i).get("DISP_TIME")==null?"":list.get(i).get("DISP_TIME").toString().substring(0,19));
+                list.get(i).put("DB_TIME",list.get(i).get("DB_TIME")==null?"":list.get(i).get("DB_TIME").toString().substring(0,19));
+                list.get(i).put("AUDIT_DATE",list.get(i).get("AUDIT_DATE")==null?"":list.get(i).get("AUDIT_DATE").toString().substring(0,19));
+                list.get(i).put("AUDIT_STATUS",list.get(i).get("AUDIT_STATUS")==null?"":String.valueOf(list.get(i).get("AUDIT_STATUS")).equals("2")?"未审核":(String.valueOf(list.get(i).get("AUDIT_STATUS")).equals("0")?"审核通过":"审核不通过"));
+
+            }
+        }
+        return jacksonUtil.toJson(list);
+    }
+
+    //添加爱心业务用车记录
+    public synchronized String addLoveBusinessVehicleUseRecord(HttpServletRequest request) {
+        String CUST_TEL=request.getParameter("CUST_TEL");
+        String CUST_NAME=request.getParameter("CUST_NAME");
+        String DISP_TIME=request.getParameter("DISP_TIME");
+        String ADDRESS=request.getParameter("ADDRESS");
+        String DEST_ADDRESS=request.getParameter("DEST_ADDRESS");
+        String NOTE=request.getParameter("NOTE");
+        String VEHI_NO1=request.getParameter("VEHI_NO1");
+        String SJDH1=request.getParameter("SJDH1");
+        String SIM_NUM1=request.getParameter("SIM_NUM1");
+        String COMP_NAME1=request.getParameter("COMP_NAME1");
+        String YCMS=request.getParameter("YCMS");
+        String TSRQ=request.getParameter("TSRQ");
+        String PTQK=request.getParameter("PTQK");
+        String YCXQ=request.getParameter("YCXQ");
+        String SZQY=request.getParameter("SZQY");
+        String JSYXM=request.getParameter("JSYXM");
+        String CF=request.getParameter("CF");
+        String realname = request.getSession().getAttribute("realname") == null?"":request.getSession().getAttribute("realname").toString().trim();
+        int count=0;
+        if("".equals(realname)||"null".equals(realname)){
+            count = -2;
+            return jacksonUtil.toJson(count);
+        }
+        List<Map<String, Object>> list = jdbcTemplate.queryForList("select 1 from TB_DISPATCH_LOVE@db69 where del_flag='0' and ADD_WAYS=1 and DISP_TIME=to_date(?,'yyyy/mm/dd hh24:mi:ss') and VEHI_NO1=?",DISP_TIME,VEHI_NO1);
+        if(list.size()>0){
+            count = -1;
+            return jacksonUtil.toJson(count);
+        }
+        String sql="insert into TB_DISPATCH_LOVE@db69" +
+                " (CUST_TEL, CUST_NAME, DISP_TIME, ADDRESS, DEST_ADDRESS, NOTE, VEHI_NO1, SJDH1, SIM_NUM1, COMP_NAME1, YCMS, TSRQ, PTQK, YCXQ, SZQY, DDQY,JSYXM,CF ,ADD_WAYS, COMMIT_PERSON) " +
+                "values ('"+CUST_TEL+"','"+CUST_NAME+"',to_date('"+DISP_TIME+"','yyyy-MM-dd HH24:mi:ss'),'"+ADDRESS+"','"+DEST_ADDRESS+"','"+NOTE+"','"+VEHI_NO1+"','"+SJDH1+"','"+SIM_NUM1+"','"+COMP_NAME1+"','"+YCMS+"','"+TSRQ+"','"+PTQK+"','"+YCXQ+"','"+SZQY+"','爱心出租(人工)','"+JSYXM+"','"+CF+"',1,'"+realname+"')";
+        try{
+            count = jdbcTemplate.update(sql);
+        }catch (Exception e){
+            e.printStackTrace();
+            count=0;
+        }
+        return jacksonUtil.toJson(count);
+
+    }
+
+    //修改爱心业务用车记录
+    public synchronized String updateLoveBusinessVehicleUseRecord(HttpServletRequest request) {
+        String CUST_TEL=request.getParameter("CUST_TEL");
+        String CUST_NAME=request.getParameter("CUST_NAME");
+        String DISP_TIME=request.getParameter("DISP_TIME");
+        String ADDRESS=request.getParameter("ADDRESS");
+        String DEST_ADDRESS=request.getParameter("DEST_ADDRESS");
+        String NOTE=request.getParameter("NOTE");
+        String VEHI_NO1=request.getParameter("VEHI_NO1");
+        String SJDH1=request.getParameter("SJDH1");
+        String SIM_NUM1=request.getParameter("SIM_NUM1");
+        String COMP_NAME1=request.getParameter("COMP_NAME1");
+        String YCMS=request.getParameter("YCMS");
+        String TSRQ=request.getParameter("TSRQ");
+        String PTQK=request.getParameter("PTQK");
+        String YCXQ=request.getParameter("YCXQ");
+        String SZQY=request.getParameter("SZQY");
+        String id = request.getParameter("id");
+        String JSYXM=request.getParameter("JSYXM");
+        String CF=request.getParameter("CF");
+        int count=0;
+        List<Map<String, Object>> list = jdbcTemplate.queryForList("select 1 from TB_DISPATCH_LOVE@db69 where del_flag='0' and ADD_WAYS=1 and DISP_TIME=to_date(?,'yyyy/mm/dd hh24:mi:ss') and VEHI_NO1=? and DISP_ID !=?",DISP_TIME,VEHI_NO1,id);
+        if(list.size()>0){
+            count = -1;
+            return jacksonUtil.toJson(count);
+        }
+        String sql="update TB_DISPATCH_LOVE@db69 set CUST_TEL='"+CUST_TEL+"'" +
+                " ,CUST_NAME='"+CUST_NAME+"'" +
+                " ,DISP_TIME=to_date('"+DISP_TIME+"','yyyy-MM-dd HH24:mi:ss')" +
+                " ,ADDRESS='"+ADDRESS+"'" +
+                " ,DEST_ADDRESS='"+DEST_ADDRESS+"'" +
+                " ,NOTE='"+NOTE+"'" +
+                " ,VEHI_NO1='"+VEHI_NO1+"'" +
+                " ,SJDH1='"+SJDH1+"'" +
+                " ,SIM_NUM1='"+SIM_NUM1+"'" +
+                " ,COMP_NAME1='"+COMP_NAME1+"'" +
+                " ,YCMS='"+YCMS+"'" +
+                " ,TSRQ='"+TSRQ+"'" +
+                " ,PTQK='"+PTQK+"'" +
+                " ,YCXQ='"+YCXQ+"'" +
+                " ,SZQY='"+SZQY+"'" +
+                " ,JSYXM='"+JSYXM+"'" +
+                " ,CF='"+CF+"'" +
+                " where DISP_ID='"+id+"'";
+        try{
+            count = jdbcTemplate.update(sql);
+        }catch (Exception e){
+            count=0;
+        }
+        return jacksonUtil.toJson(count);
+    }
+
+    //删除爱心业务用车记录
+    public String deleteLoveBusinessVehicleUseRecord(HttpServletRequest request) {
+        String id = request.getParameter("id");
+        int count=0;
+        String sql="update TB_DISPATCH_LOVE@db69 set del_flag='1'" +
+                " where DISP_ID='"+id+"'";
+        try{
+            count = jdbcTemplate.update(sql);
+        }catch (Exception e){
+            count=0;
+        }
+        return jacksonUtil.toJson(count);
+    }
+
+    private HashSet<String> successSet=null;
+    private HashSet<String> repeatSet=null;
+    private HashSet<String> errorSet=null;
+
+    //导入爱心业务用车记录
+    @Transactional(rollbackFor = Exception.class)
+    public synchronized String uploadLoveBusinessVehicleUseRecord(HttpServletRequest request, MultipartFile file) {
+        HashMap<String, Object> map = new HashMap<>();
+        String msg="";
+        if (file.isEmpty()) {
+            msg="文件内容为空";
+            map.put("msg",msg);
+            return jacksonUtil.toJson(map);
+        }
+        String fileName = file.getName();
+        // 原文件名即上传的文件名
+        String origFileName = file.getOriginalFilename();
+        String suffix = origFileName.substring(origFileName.lastIndexOf(".") + 1);
+        if(!(suffix.equals("xlsx"))){
+            msg="文件格式应该为xlsx";
+            map.put("msg",msg);
+            return jacksonUtil.toJson(map);
+        }
+        String path = System.getProperty("user.dir")+"/excelFile/"+ origFileName;
+//        String path ="d://erxi//" + origFileName;
+        File ff = new File(path);
+        // 检测是否存在目录
+        if (!ff.getParentFile().exists()) {
+            ff.getParentFile().mkdirs();// 新建文件夹
+        }
+        if(ff.exists()){
+            ff.delete();
+        }
+        try {
+            file.transferTo(ff);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<List<Object>> list = null;
+        try {
+            list = excelUtil.readExcel(ff);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (list == null||list.size()==0) {
+            msg="读取内容为空";
+            map.put("msg",msg);
+            return jacksonUtil.toJson(map);
+        } else {
+            int count = 0;
+            try {
+                String realName = request.getSession().getAttribute("realname") == null?"":request.getSession().getAttribute("realname").toString().trim();
+                if("".equals(realName)||"null".equals(realName)){
+                    msg = "录入人员为空,请重新登录";
+                    map.put("msg",msg);
+                    return jacksonUtil.toJson(map);
+                }else{
+                    count = insertVehicleMileageList(realName, list);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                count = 0;
+            }
+            if(count>0){
+                msg="导入成功";
+            }else{
+                msg="导入失败";
+            }
+            map.put("success",successSet);
+            map.put("repeat",repeatSet);
+            map.put("error",errorSet);
+        }
+        map.put("msg",msg);
+        return jacksonUtil.toJson(map);
+    }
+
+    public synchronized Integer insertVehicleMileageList(String realName, List<List<Object>> list) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy/MM/dd");
+        successSet = new LinkedHashSet<>();
+        repeatSet = new LinkedHashSet<>();
+        errorSet = new LinkedHashSet<>();
+        //获取导入开始位置
+        int start = 0;
+        for (int i = 0; i < list.size(); i++) {
+            if(String.valueOf(list.get(i).get(0)).trim().replace(" ","").equals("客户姓名")){
+                start= i+1;
+                if(start > list.size()-1){
+                    return 0;
+                }
+                break;
+            }
+        }
+
+        int count = 0;
+        for (int i = start; i < list.size(); i++) {
+            int result = -1;
+            List<Object> listSon = list.get(i);
+            //导入列数是否足够判断
+            if(listSon.size() < 15){
+                if(listSon.size() >= 1){
+                    errorSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(1)).trim());
+                }
+                continue;
+            }
+            //日期判断
+            try {
+                Date disp_time = sdf.parse(dealString(listSon.get(6)));
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(disp_time);
+                calendar.set(Calendar.DAY_OF_MONTH, 10);
+                calendar.add(Calendar.MONTH, 1);
+                // “用车时间”最晚录入时间截止到下月10日，超过时间就无法录入
+                long datetime = sdf2.parse(sdf2.format(calendar.getTime())).getTime();
+                long today = sdf2.parse(sdf2.format(new Date())).getTime();
+                //限制解除
+                if(String.valueOf(list.get(start-1).get(1)).trim().replace(" ","").equals("手机号码解除限制")){
+                }else{
+                    if(datetime < today){
+                        errorSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(1)).trim());
+                        continue;
+                    }
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                errorSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(1)).trim());
+                continue;
+            }
+            String sql = " insert into TB_DISPATCH_LOVE@db69 (CUST_NAME, CUST_TEL, JSYXM, CF, ADDRESS, DEST_ADDRESS," +
+                    " DISP_TIME, VEHI_NO1, SJDH1, COMP_NAME1, YCMS, TSRQ, PTQK, YCXQ, NOTE, DDQY, ADD_WAYS, COMMIT_PERSON, SIM_NUM1)" +
+                    " select ?,?,?,?,?,?,to_date(?,'yyyy/mm/dd hh24:mi:ss'),?,?,?,?,?,?,?,?,?,?,?,(select t.MDT_NO from vw_vehicle@db69 t where t.vehi_no = ? and rownum =1) from dual" +
+//                    " where not exists (select 1 from TB_DISPATCH_LOVE@db69 where del_flag='0' and CUST_NAME=? and CUST_TEL=? and JSYXM=? and DISP_TIME=to_date(?,'yyyy/mm/dd hh24:mi:ss') and VEHI_NO1=?)" +
+                    " where not exists (select 1 from TB_DISPATCH_LOVE@db69 where del_flag='0' and ADD_WAYS=1 and DISP_TIME=to_date(?,'yyyy/mm/dd hh24:mi:ss') and VEHI_NO1=?)" +
+                    " and exists (select 1 from TB_COMPANY@db69 where comp_name=? and comp_name is not null)";
+
+            try {
+                List<Map<String, Object>> compList = jdbcTemplate.queryForList("select comp_name from TB_COMPANY@db69 where comp_name=? and comp_name is not null", dealString(listSon.get(9)));
+                if(compList.size()==0){
+                    errorSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(1)).trim());
+                    continue;
+                }else{
+                    result= jdbcTemplate.update(sql, dealString(listSon.get(0)), dealString(listSon.get(1)), dealString(listSon.get(2)),
+                            dealString(listSon.get(3)), dealString(listSon.get(4)), dealString(listSon.get(5)), dealString(listSon.get(6)),
+                            dealString(listSon.get(7)), dealString(listSon.get(8)), dealString(listSon.get(9)), dealString(listSon.get(10)),
+                            dealString(listSon.get(11)), dealString(listSon.get(12)), dealString(listSon.get(13)), dealString(listSon.get(14)),
+                            "爱心出租(人工)", 1, realName, dealString(listSon.get(7)),
+//                            dealString(listSon.get(0)), dealString(listSon.get(1)), dealString(listSon.get(2)),
+                            dealString(listSon.get(6)), dealString(listSon.get(7)),
+                            dealString(listSon.get(9)));
+                }
+            }catch (Exception e){
+                errorSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(1)).trim());
+                e.printStackTrace();
+            }
+            if(result==0){
+                repeatSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(1)).trim());
+            }else if(result==1){
+                successSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(1)).trim());
+                count ++;
+            }
+        }
+        return count;
+    }
+
+    private String dealString(Object o){
+        String str = String.valueOf(o).trim();
+        return str;
+    }
+
+    //爱心驾驶员信息管理查询
+    public String findVehicleDiverManagement(HttpServletRequest request) {
+        String driver_name=request.getParameter("driver_name");
+        String phone=request.getParameter("phone");
+        String shift_address=request.getParameter("shift_address");
+        String vehicle=request.getParameter("vehicle");
+        String unit_name=request.getParameter("unit_name");
+        String user=request.getParameter("user");
+        String tj="";
+        if(driver_name!=null&&!driver_name.isEmpty()&&!driver_name.equals("null")&&driver_name.length()>0){
+            tj+=" and a.driver_name like '%"+driver_name+"%'";
+        }
+        if(phone!=null&&!phone.isEmpty()&&!phone.equals("null")&&phone.length()>0){
+            tj+=" and a.phone like '%"+phone+"%'";
+        }
+        if(shift_address!=null&&!shift_address.isEmpty()&&!shift_address.equals("null")&&shift_address.length()>0){
+            tj+=" and a.shift_address like '%"+shift_address+"%'";
+        }
+        if(vehicle!=null&&!vehicle.isEmpty()&&!vehicle.equals("null")&&vehicle.length()>0){
+            tj+=" and a.vehicle_no ='"+vehicle+"'";
+        }
+        if(unit_name!=null&&!unit_name.isEmpty()&&!unit_name.equals("null")&&unit_name.length()>0){
+            tj+=" and a.unit_name ='"+unit_name+"'";
+        }
+        if(user!=null&&!user.isEmpty()&&!user.equals("null")&&user.length()>0){
+            tj+=" and a.COMMIT_PERSON = '"+user+"'";
+        }
+        //用户能管理的公司
+        String comps=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps").toString();
+        comps=comps==""?"''":comps;
+        //用户管理的車輛
+        String vehicles=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic").toString();
+        tj +=" and (1=0 or a.COMPANY_NAME in ("+comps+") "+Transformation(new ArrayList<String>(Arrays.asList(vehicles.split(",")))," a.vehicle_no")+" )";
+
+        String sql = "select a.* from tb_unit_driver a " +
+                "  where a.del_flag='0'";
+        sql += tj;
+        sql +=" order by a.DB_TIME desc";
+        List<Map<String, Object>> list=jdbcTemplate.queryForList(sql);
+        if(list !=null){
+            for (int i = 0; i < list.size(); i++) {
+                list.get(i).put("BIRTH_DATE",list.get(i).get("BIRTH_DATE")==null?"":list.get(i).get("BIRTH_DATE").toString().substring(0,10));
+                list.get(i).put("DB_TIME",list.get(i).get("DB_TIME")==null?"":list.get(i).get("DB_TIME").toString().substring(0,19));
+                list.get(i).put("AUDIT_DATE",list.get(i).get("AUDIT_DATE")==null?"":list.get(i).get("AUDIT_DATE").toString().substring(0,19));
+                list.get(i).put("AUDIT_STATUS",list.get(i).get("AUDIT_STATUS")==null?"":String.valueOf(list.get(i).get("AUDIT_STATUS")).equals("2")?"未审核":(String.valueOf(list.get(i).get("AUDIT_STATUS")).equals("0")?"审核通过":"审核不通过"));
+
+            }
+        }
+        return jacksonUtil.toJson(list);
+    }
+
+    //添加爱心驾驶员信息管理
+    public String addVehicleDiverManagement(HttpServletRequest request) {
+        String DRIVER_NAME=request.getParameter("DRIVER_NAME");
+        String SEX=request.getParameter("SEX");
+        String BIRTH_DATE=request.getParameter("BIRTH_DATE");
+        String POLITICAL_AFFILIATION=request.getParameter("POLITICAL_AFFILIATION");
+        String VEHICLE_NO=request.getParameter("VEHICLE_NO");
+        String COMPANY_NAME=request.getParameter("COMPANY_NAME");
+        String UNIT_NAME=request.getParameter("UNIT_NAME");
+        String SHIFTS=request.getParameter("SHIFTS");
+        String SHIFT_TIME=request.getParameter("SHIFT_TIME");
+        String SHIFT_ADDRESS=request.getParameter("SHIFT_ADDRESS");
+        String PHONE=request.getParameter("PHONE");
+        String FUEL_TYPE=request.getParameter("FUEL_TYPE");
+        String QUALIFICATION_NUMBER=request.getParameter("QUALIFICATION_NUMBER");
+        String ADDRESS=request.getParameter("ADDRESS");
+        String REMARKS=request.getParameter("REMARKS");
+        String realname = request.getSession().getAttribute("realname") == null?"":request.getSession().getAttribute("realname").toString();
+        int count=0;
+        String cx="select count(*) from tb_unit_driver where vehicle_no='"+VEHICLE_NO+"' and driver_name='"+DRIVER_NAME+"'and phone='"+PHONE+"' and del_flag='0'";
+        Integer size = jdbcTemplate.queryForObject(cx,Integer.class);
+        if(size>0){
+            return jacksonUtil.toJson(-1);
+        }else{
+            String sql="insert into tb_unit_driver" +
+                    " (DRIVER_NAME, SEX, BIRTH_DATE, POLITICAL_AFFILIATION, VEHICLE_NO, COMPANY_NAME, UNIT_NAME, SHIFTS, SHIFT_TIME, SHIFT_ADDRESS, PHONE, FUEL_TYPE, QUALIFICATION_NUMBER, ADDRESS, REMARKS, COMMIT_PERSON) " +
+                    "values ('"+DRIVER_NAME+"','"+SEX+"',to_date('"+BIRTH_DATE+"','yyyy-MM-dd'),'"+POLITICAL_AFFILIATION+"','"+VEHICLE_NO+"','"+COMPANY_NAME+"','"+UNIT_NAME+"','"+SHIFTS+"','"+SHIFT_TIME+"','"+SHIFT_ADDRESS+"','"+PHONE+"','"+FUEL_TYPE+"','"+QUALIFICATION_NUMBER+"','"+ADDRESS+"','"+REMARKS+"','"+realname+"')";
+            try{
+                count = jdbcTemplate.update(sql);
+            }catch (Exception e){
+                count=0;
+            }
+        }
+        return jacksonUtil.toJson(count);
+    }
+
+    //修改爱心驾驶员信息管理
+    public String updateVehicleDiverManagement(HttpServletRequest request) {
+        String DRIVER_NAME=request.getParameter("DRIVER_NAME");
+        String SEX=request.getParameter("SEX");
+        String BIRTH_DATE=request.getParameter("BIRTH_DATE");
+        String POLITICAL_AFFILIATION=request.getParameter("POLITICAL_AFFILIATION");
+        String VEHICLE_NO=request.getParameter("VEHICLE_NO");
+        String COMPANY_NAME=request.getParameter("COMPANY_NAME");
+        String UNIT_NAME=request.getParameter("UNIT_NAME");
+        String SHIFTS=request.getParameter("SHIFTS");
+        String SHIFT_TIME=request.getParameter("SHIFT_TIME");
+        String SHIFT_ADDRESS=request.getParameter("SHIFT_ADDRESS");
+        String PHONE=request.getParameter("PHONE");
+        String FUEL_TYPE=request.getParameter("FUEL_TYPE");
+        String QUALIFICATION_NUMBER=request.getParameter("QUALIFICATION_NUMBER");
+        String ADDRESS=request.getParameter("ADDRESS");
+        String REMARKS=request.getParameter("REMARKS");
+        String id = request.getParameter("id");
+        int count=0;
+        String cx="select count(*) from tb_unit_driver where vehicle_no='"+VEHICLE_NO+"' and driver_name='"+DRIVER_NAME+"'and phone='"+PHONE+"' and del_flag='0' and ID !='"+id+"'";
+        Integer size = jdbcTemplate.queryForObject(cx,Integer.class);
+        if(size>0){
+            return jacksonUtil.toJson(-1);
+        }else{
+            String sql="update tb_unit_driver set DRIVER_NAME='"+DRIVER_NAME+"'" +
+                    " ,SEX='"+SEX+"'" +
+                    " ,BIRTH_DATE=to_date('"+BIRTH_DATE+"','yyyy-MM-dd')" +
+                    " ,POLITICAL_AFFILIATION='"+POLITICAL_AFFILIATION+"'" +
+                    " ,VEHICLE_NO='"+VEHICLE_NO+"'" +
+                    " ,COMPANY_NAME='"+COMPANY_NAME+"'" +
+                    " ,UNIT_NAME='"+UNIT_NAME+"'" +
+                    " ,SHIFTS='"+SHIFTS+"'" +
+                    " ,SHIFT_TIME='"+SHIFT_TIME+"'" +
+                    " ,SHIFT_ADDRESS='"+SHIFT_ADDRESS+"'" +
+                    " ,PHONE='"+PHONE+"'" +
+                    " ,FUEL_TYPE='"+FUEL_TYPE+"'" +
+                    " ,QUALIFICATION_NUMBER='"+QUALIFICATION_NUMBER+"'" +
+                    " ,ADDRESS='"+ADDRESS+"'" +
+                    " ,REMARKS='"+REMARKS+"'" +
+                    " where ID='"+id+"'";
+            try{
+                count = jdbcTemplate.update(sql);
+            }catch (Exception e){
+                count=0;
+            }
+        }
+        return jacksonUtil.toJson(count);
+    }
+
+    //删除爱心驾驶员信息管理
+    public String deleteVehicleDiverManagement(HttpServletRequest request) {
+        String id = request.getParameter("id");
+        int count=0;
+        String sql="update tb_unit_driver set del_flag='1'" +
+                " where ID='"+id+"'";
+        try{
+            count = jdbcTemplate.update(sql);
+        }catch (Exception e){
+            count=0;
+        }
+        return jacksonUtil.toJson(count);
+    }
+
+
+    //导入爱心驾驶员信息管理
+    @Transactional(rollbackFor = Exception.class)
+    public synchronized String uploadVehicleDiverManagement(HttpServletRequest request, MultipartFile file) {
+        HashMap<String, Object> map = new HashMap<>();
+        String msg="";
+        if (file.isEmpty()) {
+            msg="文件内容为空";
+            map.put("msg",msg);
+            return jacksonUtil.toJson(map);
+        }
+        String fileName = file.getName();
+        // 原文件名即上传的文件名
+        String origFileName = file.getOriginalFilename();
+        String suffix = origFileName.substring(origFileName.lastIndexOf(".") + 1);
+        if(!(suffix.equals("xlsx"))){
+            msg="文件格式应该为xlsx";
+            map.put("msg",msg);
+            return jacksonUtil.toJson(map);
+        }
+        String path = System.getProperty("user.dir")+"/excelFile/"+ origFileName;
+//        String path ="d://erxi//" + origFileName;
+        File ff = new File(path);
+        // 检测是否存在目录
+        if (!ff.getParentFile().exists()) {
+            ff.getParentFile().mkdirs();// 新建文件夹
+        }
+        if(ff.exists()){
+            ff.delete();
+        }
+        try {
+            file.transferTo(ff);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<List<Object>> list = null;
+        try {
+            list = excelUtil.readExcel(ff);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (list == null||list.size()==0) {
+            msg="读取内容为空";
+            map.put("msg",msg);
+            return jacksonUtil.toJson(map);
+        } else {
+            int count = 0;
+            try {
+                String realName = request.getSession().getAttribute("realname") == null?"":request.getSession().getAttribute("realname").toString().trim();
+                if("".equals(realName)||"null".equals(realName)){
+                    msg = "录入人员为空,请重新登录";
+                    map.put("msg",msg);
+                    return jacksonUtil.toJson(map);
+                }else{
+                    //添加爱心驾驶员信息管理
+                    count = insertVehicleDiverManagement(realName, list);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                count = 0;
+            }
+            if(count>0){
+                msg="导入成功";
+            }else{
+                msg="导入失败";
+            }
+            map.put("success",successSet);
+            map.put("repeat",repeatSet);
+            map.put("error",errorSet);
+        }
+        map.put("msg",msg);
+        return jacksonUtil.toJson(map);
+    }
+
+    //添加爱心驾驶员信息管理
+    public synchronized Integer insertVehicleDiverManagement(String realName, List<List<Object>> list) {
+        successSet = new LinkedHashSet<>();
+        repeatSet = new LinkedHashSet<>();
+        errorSet = new LinkedHashSet<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+        //获取导入开始位置
+        int start = 0;
+        for (int i = 0; i < list.size(); i++) {
+            if(String.valueOf(list.get(i).get(0)).trim().replace(" ","").equals("姓名")){
+                start= i+1;
+                if(start > list.size()-1){
+                    return 0;
+                }
+                break;
+            }
+        }
+
+        int count = 0;
+        for (int i = start; i < list.size(); i++) {
+            int result = -1;
+            List<Object> listSon = list.get(i);
+            //导入列数是否足够判断
+            if(listSon.size() < 15){
+                if(listSon.size() >= 1){
+                    errorSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(0)).trim());
+                }
+                continue;
+            }
+            //日期
+            try {
+                Date disp_time = sdf.parse(dealString(listSon.get(2)).replaceAll("-","/"));
+                System.out.println(disp_time);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                errorSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(0)).trim());
+                continue;
+            }
+            String sql = " insert into tb_unit_driver (DRIVER_NAME, SEX, BIRTH_DATE, POLITICAL_AFFILIATION, VEHICLE_NO, COMPANY_NAME, UNIT_NAME, SHIFTS, SHIFT_TIME, SHIFT_ADDRESS, PHONE, FUEL_TYPE, QUALIFICATION_NUMBER, ADDRESS, REMARKS, COMMIT_PERSON)" +
+                    " select ?,?,to_date(?,'yyyy/mm/dd'),?,?,?,?,?,?,?,?,?,?,?,?,? from dual" +
+                    " where not exists (select 1 from tb_unit_driver where del_flag='0' and VEHICLE_NO=? and driver_name=? and phone=?)" +
+                    " and exists (select 1 from TB_COMPANY@db69 where comp_name=? and comp_name is not null)";
+
+            try {
+                List<Map<String, Object>> compList = jdbcTemplate.queryForList("select comp_name from TB_COMPANY@db69 where comp_name=? and comp_name is not null", dealString(listSon.get(5)));
+                if(compList.size()==0){
+                    errorSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(0)).trim());
+                    continue;
+                }else{
+                    result= jdbcTemplate.update(sql, dealString(listSon.get(0)), dealString(listSon.get(1)), dealString(listSon.get(2)).replaceAll("-","/"),
+                            dealString(listSon.get(3)), dealString(listSon.get(4)), dealString(listSon.get(5)), dealString(listSon.get(6)),
+                            dealString(listSon.get(7)),dealString(listSon.get(8)),dealString(listSon.get(9)),dealString(listSon.get(10)),
+                            dealString(listSon.get(11)),dealString(listSon.get(12)),dealString(listSon.get(13)),dealString(listSon.get(14)),
+                            realName,
+                            dealString(listSon.get(4)),dealString(listSon.get(0)),dealString(listSon.get(10)),
+                            dealString(listSon.get(5)));
+                }
+            }catch (Exception e){
+                errorSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(0)).trim());
+                e.printStackTrace();
+            }
+            if(result==0){
+                repeatSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(0)).trim());
+            }else if(result==1){
+                successSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(0)).trim());
+                count ++;
+            }
+        }
+        return count;
+    }
+
+    public String Transformation(ArrayList<String> list,String field){
+        String loginType = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("loginType")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("loginType").toString();
+        String vehicleGroupId = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getParameter("vehicleGroupId")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getParameter("vehicleGroupId").toString();
+        //判断登录类型
+        if("1".equals(loginType)){
+            //判断查询条件是否有车辆组id，有：获取对应车辆组id的车辆，没有：获取改用户下的全部车辆
+            if(vehicleGroupId!=null&&!vehicleGroupId.isEmpty()&&!vehicleGroupId.equals("null")){
+                list = new ArrayList<String>(Arrays.asList(commonServer.getGroupVehicles(vehicleGroupId).split(",")));
+            }
+            if(list.size()==1&&"".equals(list.get(0))){
+                return " or "+field + "in ('') ";
+            }else{
+                int init = 900;// 每隔100条循环一次
+                int total = list.size();
+                int cycelTotal = total / init;
+                if (total % init != 0) {
+                    cycelTotal += 1;
+                    if (total < init) {
+                        init = list.size();
+                    }
+                }
+                ArrayList<String> cphm = new ArrayList<String>();
+                ArrayList<String> list2 = new ArrayList<String>();
+                for (int i = 0; i < cycelTotal; i++) {
+                    for (int j = 0; j < init; j++) {
+                        try {
+                            if (list.get(j) == null) {
+                                break;
+                            }
+                            list2.add(list.get(j));
+                        } catch (Exception e) {
+                        }
+                    }
+                    cphm.add("'"+String.join( "','",list2)+"'");
+                    list.removeAll(list2);//移出已经保存过的数据
+                    list2.clear();//移出当前保存的数据
+                }
+                String tj = " or ( ";
+                if(cphm.size() ==1){
+                    tj += field+" in ("+cphm.get(0)+") ";
+                }else{
+                    for (int i = 0; i < cphm.size(); i++) {
+                        if(i == 0){
+                            tj += field +" in ("+cphm.get(i)+") ";
+                        }else{
+                            tj += " or "+field+" in ("+cphm.get(i)+") ";
+                        }
+                    }
+                }
+                tj += " ) ";
+                return tj;
+            }
+        }else{
+            return "";
+        }
+    }
+
+    public String getSjhmSelect(HttpServletRequest request) {
+        String sjhm = String.valueOf(request.getParameter("sjhm"));
+        String sql = "select distinct CUST_TEL from TB_DISPATCH_LOVE@db69 where CUST_TEL like '%"+sjhm+"%' order by cust_tel";
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        return jacksonUtil.toJson(list);
+    }
+
+    public String getSjhmInfo(HttpServletRequest request) {
+        String sjhm = String.valueOf(request.getParameter("sjhm"));
+        String sql = "select * from TB_DISPATCH_LOVE@db69 where CUST_TEL = '"+sjhm+"' order by disp_time desc";
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        return jacksonUtil.toJson(list);
+    }
+
+    //企业车辆驾驶员信息管理查询
+    public String findDriverInformationManagement(HttpServletRequest request) {
+        String vehicle=request.getParameter("vehicle");
+        String phone=request.getParameter("phone");
+        String owner=request.getParameter("owner");
+        String company=request.getParameter("company");
+        String branch=request.getParameter("branch");
+        String user=request.getParameter("user");
+
+        String tj="";
+        if(vehicle!=null&&!vehicle.isEmpty()&&!vehicle.equals("null")&&vehicle.length()>0){
+            tj+=" and a.VEHICLE_NO ='"+vehicle+"'";
+        }
+        if(phone!=null&&!phone.isEmpty()&&!phone.equals("null")&&phone.length()>0){
+            tj+=" and a.OWNER_PHONE like '%"+phone+"%'";
+        }
+        if(owner!=null&&!owner.isEmpty()&&!owner.equals("null")&&owner.length()>0){
+            tj+=" and a.OWNER_NAME like '%"+owner+"%'";
+        }
+        if(company!=null&&!company.isEmpty()&&!company.equals("null")&&company.length()>0){
+            tj+=" and a.COMPANY_NAME = '"+company+"'";
+        }
+        if(branch!=null&&!branch.isEmpty()&&!branch.equals("null")&&branch.length()>0){
+            tj+=" and a.BRANCH_OFFICE = '"+branch+"'";
+        }
+        if(user!=null&&!user.isEmpty()&&!user.equals("null")&&user.length()>0){
+            tj+=" and a.COMMIT_PERSON = '"+user+"'";
+        }
+        //用户能管理的公司
+        String comps=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps").toString();
+        comps=comps==""?"''":comps;
+        //用户管理的車輛
+        String vehicles=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic").toString();
+        tj +=" and (1=0 or a.COMPANY_NAME in ("+comps+") "+Transformation(new ArrayList<String>(Arrays.asList(vehicles.split(",")))," a.VEHICLE_NO")+" )";
+
+        String sql = "select a.* from tb_company_vehicle_driver_info a " +
+                "  where a.del_flag='0'";
+        sql += tj;
+        sql +=" order by a.db_time desc";
+        List<Map<String, Object>> list=jdbcTemplate.queryForList(sql);
+        if(list !=null){
+            for (int i = 0; i < list.size(); i++) {
+                list.get(i).put("UPDATE_TIME",list.get(i).get("UPDATE_TIME")==null?"":list.get(i).get("UPDATE_TIME").toString().substring(0,19));
+                list.get(i).put("DB_TIME",list.get(i).get("DB_TIME")==null?"":list.get(i).get("DB_TIME").toString().substring(0,19));
+                list.get(i).put("AUDIT_DATE",list.get(i).get("AUDIT_DATE")==null?"":list.get(i).get("AUDIT_DATE").toString().substring(0,19));
+                list.get(i).put("AUDIT_STATUS",list.get(i).get("AUDIT_STATUS")==null?"":String.valueOf(list.get(i).get("AUDIT_STATUS")).equals("2")?"未审核":(String.valueOf(list.get(i).get("AUDIT_STATUS")).equals("0")?"审核通过":"审核不通过"));
+
+            }
+        }
+        return jacksonUtil.toJson(list);
+    }
+
+    //添加企业车辆驾驶员信息管理
+    public synchronized String addDriverInformationManagement(HttpServletRequest request) {
+        String COMPANY_NAME=request.getParameter("COMPANY_NAME");
+        String BRANCH_OFFICE=request.getParameter("BRANCH_OFFICE");
+        String VEHICLE_NO=request.getParameter("VEHICLE_NO");
+        String OWNER_NAME=request.getParameter("OWNER_NAME");
+        String OWNER_PHONE=request.getParameter("OWNER_PHONE");
+        String DAY_PHONE=request.getParameter("DAY_PHONE");
+        String NIGHT_PHONE=request.getParameter("NIGHT_PHONE");
+        String SHIFT_PHONE=request.getParameter("SHIFT_PHONE");
+        String realname = request.getSession().getAttribute("realname") == null?"":request.getSession().getAttribute("realname").toString().trim();
+        int count=0;
+        if("".equals(realname)||"null".equals(realname)){
+            count = -2;
+            return jacksonUtil.toJson(count);
+        }
+        List<Map<String, Object>> list = jdbcTemplate.queryForList("select 1 from tb_company_vehicle_driver_info where del_flag='0' and VEHICLE_NO=?",VEHICLE_NO);
+        if(list.size()>0){
+            count = -1;
+            return jacksonUtil.toJson(count);
+        }
+        String sql="insert into tb_company_vehicle_driver_info" +
+                " (COMPANY_NAME, BRANCH_OFFICE, VEHICLE_NO, OWNER_NAME, OWNER_PHONE, DAY_PHONE, NIGHT_PHONE, SHIFT_PHONE, COMMIT_PERSON) " +
+                "values ('"+COMPANY_NAME+"','"+BRANCH_OFFICE+"','"+VEHICLE_NO+"','"+OWNER_NAME+"','"+OWNER_PHONE+"','"+DAY_PHONE+"','"+NIGHT_PHONE+"','"+SHIFT_PHONE+"','"+realname+"')";
+        try{
+            count = jdbcTemplate.update(sql);
+        }catch (Exception e){
+            e.printStackTrace();
+            count=0;
+        }
+        return jacksonUtil.toJson(count);
+
+    }
+
+    //修改企业车辆驾驶员信息管理
+    public synchronized String updateDriverInformationManagement(HttpServletRequest request) {
+        String COMPANY_NAME=request.getParameter("COMPANY_NAME");
+        String BRANCH_OFFICE=request.getParameter("BRANCH_OFFICE");
+        String VEHICLE_NO=request.getParameter("VEHICLE_NO");
+        String OWNER_NAME=request.getParameter("OWNER_NAME");
+        String OWNER_PHONE=request.getParameter("OWNER_PHONE");
+        String DAY_PHONE=request.getParameter("DAY_PHONE");
+        String NIGHT_PHONE=request.getParameter("NIGHT_PHONE");
+        String SHIFT_PHONE=request.getParameter("SHIFT_PHONE");
+        String id = request.getParameter("id");
+        int count=0;
+        List<Map<String, Object>> list = jdbcTemplate.queryForList("select 1 from tb_company_vehicle_driver_info where VEHICLE_NO=? and id !=?",VEHICLE_NO,id);
+        if(list.size()>0){
+            count = -1;
+            return jacksonUtil.toJson(count);
+        }
+        String sql="update tb_company_vehicle_driver_info set update_time = sysdate" +
+                " ,COMPANY_NAME='"+COMPANY_NAME+"'" +
+                " ,BRANCH_OFFICE='"+BRANCH_OFFICE+"'" +
+                " ,VEHICLE_NO='"+VEHICLE_NO+"'" +
+                " ,OWNER_NAME='"+OWNER_NAME+"'" +
+                " ,OWNER_PHONE='"+OWNER_PHONE+"'" +
+                " ,DAY_PHONE='"+DAY_PHONE+"'" +
+                " ,NIGHT_PHONE='"+NIGHT_PHONE+"'" +
+                " ,SHIFT_PHONE='"+SHIFT_PHONE+"'" +
+                " where id='"+id+"'";
+        try{
+            count = jdbcTemplate.update(sql);
+        }catch (Exception e){
+            count=0;
+        }
+        return jacksonUtil.toJson(count);
+    }
+
+    //删除企业车辆驾驶员信息管理
+    public String deleteDriverInformationManagement(HttpServletRequest request) {
+        String id = request.getParameter("id");
+        int count=0;
+        String sql="update tb_company_vehicle_driver_info set del_flag='1'" +
+                " where id ='"+id+"'";
+        try{
+            count = jdbcTemplate.update(sql);
+        }catch (Exception e){
+            count=0;
+        }
+        return jacksonUtil.toJson(count);
+    }
+
+
+    //导入企业车辆驾驶员信息管理
+    @Transactional(rollbackFor = Exception.class)
+    public synchronized String uploadDriverInformationManagement(HttpServletRequest request, MultipartFile file) {
+        HashMap<String, Object> map = new HashMap<>();
+        String msg="";
+        if (file.isEmpty()) {
+            msg="文件内容为空";
+            map.put("msg",msg);
+            return jacksonUtil.toJson(map);
+        }
+        String fileName = file.getName();
+        // 原文件名即上传的文件名
+        String origFileName = file.getOriginalFilename();
+        String suffix = origFileName.substring(origFileName.lastIndexOf(".") + 1);
+        if(!(suffix.equals("xlsx"))){
+            msg="文件格式应该为xlsx";
+            map.put("msg",msg);
+            return jacksonUtil.toJson(map);
+        }
+        String path = System.getProperty("user.dir")+"/excelFile/"+ origFileName;
+//        String path ="d://erxi//" + origFileName;
+        File ff = new File(path);
+        // 检测是否存在目录
+        if (!ff.getParentFile().exists()) {
+            ff.getParentFile().mkdirs();// 新建文件夹
+        }
+        if(ff.exists()){
+            ff.delete();
+        }
+        try {
+            file.transferTo(ff);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<List<Object>> list = null;
+        try {
+            list = excelUtil.readExcel(ff);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (list == null||list.size()==0) {
+            msg="读取内容为空";
+            map.put("msg",msg);
+            return jacksonUtil.toJson(map);
+        } else {
+            int count = 0;
+            try {
+                String realName = request.getSession().getAttribute("realname") == null?"":request.getSession().getAttribute("realname").toString().trim();
+                if("".equals(realName)||"null".equals(realName)){
+                    msg = "录入人员为空,请重新登录";
+                    map.put("msg",msg);
+                    return jacksonUtil.toJson(map);
+                }else{
+                    //添加企业车辆驾驶员信息管理
+                    count = insertDriverInformationManagement(realName, list);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                count = 0;
+            }
+            if(count>0){
+                msg="导入成功";
+            }else{
+                msg="导入失败";
+            }
+            map.put("success",successSet);
+            map.put("repeat",repeatSet);
+            map.put("error",errorSet);
+        }
+        map.put("msg",msg);
+        return jacksonUtil.toJson(map);
+    }
+
+    //添加企业车辆驾驶员信息管理
+    public synchronized Integer insertDriverInformationManagement(String realName, List<List<Object>> list) {
+        successSet = new LinkedHashSet<>();
+        repeatSet = new LinkedHashSet<>();
+        errorSet = new LinkedHashSet<>();
+        //获取导入开始位置
+        int start = 0;
+        for (int i = 0; i < list.size(); i++) {
+            if(String.valueOf(list.get(i).get(0)).trim().replace(" ","").equals("公司")){
+                start= i+1;
+                if(start > list.size()-1){
+                    return 0;
+                }
+                break;
+            }
+        }
+
+        int count = 0;
+        for (int i = start; i < list.size(); i++) {
+            int result = -1;
+            List<Object> listSon = list.get(i);
+            //导入列数是否足够判断
+            if(listSon.size() < 8){
+                if(listSon.size() >= 1){
+                    errorSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(2)).trim());
+                }
+                continue;
+            }
+            String sql = " insert into tb_company_vehicle_driver_info (COMPANY_NAME, BRANCH_OFFICE, VEHICLE_NO, OWNER_NAME, OWNER_PHONE, DAY_PHONE, NIGHT_PHONE, SHIFT_PHONE, COMMIT_PERSON)" +
+                    " select ?,?,?,?,?,?,?,?,? from dual" +
+                    " where not exists (select 1 from tb_company_vehicle_driver_info where del_flag='0' and VEHICLE_NO=?)" +
+                    " and exists (select 1 from TB_COMPANY@db69 where comp_name=? and comp_name is not null)";
+
+            try {
+                List<Map<String, Object>> compList = jdbcTemplate.queryForList("select comp_name from TB_COMPANY@db69 where comp_name=? and comp_name is not null", dealString(listSon.get(0)));
+                if(compList.size()==0){
+                    errorSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(2)).trim());
+                    continue;
+                }else{
+                    result= jdbcTemplate.update(sql, dealString(listSon.get(0)), dealString(listSon.get(1)), dealString(listSon.get(2)),
+                            dealString(listSon.get(3)), dealString(listSon.get(4)), dealString(listSon.get(5)), dealString(listSon.get(6)),
+                            dealString(listSon.get(7)), realName,
+                            dealString(listSon.get(2)),
+                            dealString(listSon.get(0)));
+                }
+            }catch (Exception e){
+                errorSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(2)).trim());
+                e.printStackTrace();
+            }
+            if(result==0){
+                repeatSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(2)).trim());
+            }else if(result==1){
+                successSet.add("第"+(i+1)+"行:"+String.valueOf(listSon.get(2)).trim());
+                count ++;
+            }
+        }
+        return count;
     }
 }

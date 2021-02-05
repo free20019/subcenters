@@ -1,2 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d0d8369"],{"79b3":function(e,t,n){"use strict";n.r(t);var a=function(){var e=this,t=e.$createElement,n=e._self._c||t;return n("div",{staticClass:"tw-template-wrapper"},[e._v("重点区域监控")])},r=[],l={name:"KeyAreaMonitor"},s=l,c=n("2877"),u=Object(c["a"])(s,a,r,!1,null,null,null);t["default"]=u.exports}}]);
-//# sourceMappingURL=chunk-2d0d8369.9328ee07.js.map

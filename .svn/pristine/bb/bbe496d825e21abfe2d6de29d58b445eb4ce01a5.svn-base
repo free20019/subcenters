@@ -1,0 +1,407 @@
+package mvc.service;
+
+
+import helper.JacksonUtil;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+
+@Service
+public class CommonServer {
+	protected JdbcTemplate jdbcTemplate = null;
+	protected JdbcTemplate jdbcTemplate2 = null;
+
+	public JdbcTemplate getJdbcTemplate() {
+		return jdbcTemplate;
+	}
+
+	@Autowired
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
+
+	public JdbcTemplate getJdbcTemplate2() {
+		return jdbcTemplate2;
+	}
+
+	@Autowired
+	public void setJdbcTemplate2(JdbcTemplate jdbcTemplate2) {
+		this.jdbcTemplate2 = jdbcTemplate2;
+	}
+
+	private JacksonUtil jacksonUtil = JacksonUtil.buildNormalBinder();
+
+	public String test() {
+		System.out.println(jdbcTemplate);
+		System.out.println(jdbcTemplate2);
+		return "ok";
+	}
+
+	//车牌
+	public String getVehicle(String type) {
+//		//用户能管理的公司
+//		String comps=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps").toString();
+//		comps=comps==""?"''":comps;
+//		//用户管理的車輛
+//		String vehicles=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic").toString();
+//		String tj = "";
+//		if("1".equals(type)){
+//			tj += "";
+//		}else{
+//			tj +=" and (1=0 or company_name in ("+comps+") "+Transformation(new ArrayList<String>(Arrays.asList(vehicles.split(","))),"PLATE_NUMBER")+" )";
+//		}
+//		String sql = "select distinct PLATE_NUMBER vehicle_no, company_name from tb_global_vehicle@db69 where industry=090 and business_scope_code = 1400  AND STATUS_NAME='营运' AND PLATE_NUMBER LIKE '浙A%'";
+//		sql +=tj;
+//		sql +=" order by PLATE_NUMBER";
+//		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+//		return jacksonUtil.toJson(list);
+		//用户能管理的公司
+		String comps=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps").toString();
+		comps=comps==""?"''":comps;
+		//用户管理的車輛
+		String vehicles=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic").toString();
+		String tj = "";
+		if("1".equals(type)){
+			tj += "";
+		}else{
+			tj +=" and (1=0 or comp_name in ("+comps+") "+Transformation(new ArrayList<String>(Arrays.asList(vehicles.split(","))),"vehi_no")+" )";
+		}
+		String sql = "select distinct vehi_no vehicle_no,comp_name company_name, MDT_NO, UNIT_NAME from vw_vehicle@db69 where 1=1 and comp_name is not null";
+		sql +=tj;
+		sql +=" order by vehi_no";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//公司
+	public String getCompany(String type) {
+//		//用户能管理的公司
+//		String comps=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps").toString();
+//		comps=comps==""?"''":comps;
+//		//用户管理的車輛
+//		String vehicles=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic").toString();
+//		String tj = "";
+//		if("1".equals(type)){
+//			tj += "";
+//		}else{
+//			tj +=" and (1=0 or company_name in ("+comps+") "+Transformation(new ArrayList<String>(Arrays.asList(vehicles.split(","))),"PLATE_NUMBER")+" )";
+//		}
+//		String sql = "select distinct company_name from tb_global_vehicle where industry=090 and business_scope_code = 1400  AND STATUS_NAME='营运' AND PLATE_NUMBER LIKE '浙A%' AND company_name <>' '";
+//		sql +=tj;
+//		sql +=" order by company_name";
+//		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+//		return jacksonUtil.toJson(list);
+		//用户能管理的公司
+		String comps=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps").toString();
+		comps=comps==""?"''":comps;
+		//用户管理的車輛
+		String vehicles=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic").toString();
+		String tj = "";
+		if("1".equals(type)){
+			tj += "";
+		}else{
+			tj +=" and (1=0 or comp_name in ("+comps+") "+Transformation(new ArrayList<String>(Arrays.asList(vehicles.split(","))),"vehi_no")+" )";
+		}
+		String sql = "select distinct comp_name company_name from vw_vehicle@db69 where 1=1";
+		sql +=tj;
+		sql +=" order by comp_name";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//分公司
+	public String getUnit(String type) {
+		//用户能管理的公司
+		String comps=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("comps").toString();
+		comps=comps==""?"''":comps;
+		//用户管理的車輛
+		String vehicles=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("groupVhic").toString();
+		String tj = "";
+		if("1".equals(type)){
+			tj += "";
+		}else{
+			tj +=" and (1=0 or comp_name in ("+comps+") "+Transformation(new ArrayList<String>(Arrays.asList(vehicles.split(","))),"vehi_no")+" )";
+		}
+		String sql = "select distinct UNIT_NAME UNIT_NAME from vw_vehicle@db69 where 1=1 and UNIT_NAME is not null";
+		sql +=tj;
+		sql +=" order by UNIT_NAME";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//车牌号变更申请_新车牌
+	public String getNewVehicle() {
+		String sql = "select distinct NEW_VEHICLE_NO vehicle_no from tb_vehicle_change@db69 order by NEW_VEHICLE_NO";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//车辆组
+    public String getGroupVehicle(HttpServletRequest request) {
+		String id = String.valueOf(request.getSession().getAttribute("userid"));
+		String sql="select g.group_name,g.group_id," +
+				"(select count(*) from TB_TAXI_VEHICLE_GROUP v where v.group_id=g.group_id) count" +
+				" from TB_TAXI_VEHICLE_GROUPNAME g where g.user_id='"+id+"'";
+		sql += " order by nlssort(g.group_name,'NLS_SORT=SCHINESE_PINYIN_M')";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+    }
+
+	//岗位
+    public String getStation() {
+		String sql = "select distinct * from TB_TAXI_STATION order by nlssort(STATION_NAME,'NLS_SORT=SCHINESE_PINYIN_M')";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+    }
+
+	//用户管理公司
+	public String getUserCompany() {
+		String sql = "select distinct comp_name from TB_COMPANY@db69 order by nlssort(comp_name,'NLS_SORT=SCHINESE_PINYIN_M')";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//功能列表
+	public String getPower() {
+		String sql = "select * from tb_power_list order by module_id, id";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//登录
+    public String login(HttpServletRequest request, String username, String password) {
+		//登录类型0正常账号登录  1车辆组账号登录
+		String loginType = request.getParameter("type");
+		request.getSession().setAttribute("loginType",loginType);
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		request.getSession().setAttribute("comps","");
+		request.getSession().setAttribute("groupVhic","");
+		
+		if("0".equals(loginType)){
+			String sql = "select u.ID, u.USER_NAME, u.REAL_NAME, u.DATE_VIEW_TYPE, u.PARENT, u.STATION_ID,s.STATION_NAME,s.STATION_JURI,s.POWER_IDS from tb_subcenters_user u,tb_taxi_station s where u.station_id=s.id and u.user_name=? and u.password=?";
+			List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, new Object[] {username,password});
+			if(list.size()==0){
+				map.put("info",1);
+				map.put("list",list);
+				return jacksonUtil.toJson(map);
+			}else{
+				//登录记录
+				String userid=list.get(0).get("ID")==null?"":list.get(0).get("ID").toString();
+				String insert="insert into TB_SUBCENTERS_LOGIN_HISTORY (USER_ID, LOGIN_TIME, LOGING_WAY, ACCOUNT_SORT) values ("+userid+", sysdate, 1, 0)";
+				jdbcTemplate.update(insert);
+				request.getSession().setAttribute("userid", list.get(0).get("ID")==null?"":list.get(0).get("ID").toString());//用户id
+				request.getSession().setAttribute("username", list.get(0).get("USER_NAME")==null?"":list.get(0).get("USER_NAME").toString());//登录名
+				request.getSession().setAttribute("realname", list.get(0).get("REAL_NAME")==null?"":list.get(0).get("REAL_NAME").toString());//用户姓名
+				request.getSession().setAttribute("comps", list.get(0).get("DATE_VIEW_TYPE")==null?"":("'"+list.get(0).get("DATE_VIEW_TYPE").toString().replaceAll(",","','")+"'"));//用户公司
+				request.getSession().setAttribute("parent", list.get(0).get("PARENT")==null?"":list.get(0).get("PARENT").toString());//用户的父节点
+
+				request.getSession().setAttribute("groupVhic","");
+				request.getSession().setAttribute("station_id", list.get(0).get("STATION_ID")==null?"":list.get(0).get("STATION_ID").toString());//岗位id
+				request.getSession().setAttribute("station_name", list.get(0).get("STATION_NAME")==null?"":list.get(0).get("STATION_NAME").toString());//岗位名
+				request.getSession().setAttribute("station_juri", list.get(0).get("STATION_JURI")==null?"":list.get(0).get("STATION_JURI").toString());//岗位权限名
+				request.getSession().setAttribute("power_ids", list.get(0).get("POWER_IDS")==null?"":list.get(0).get("POWER_IDS").toString());//岗位权限（页面id组合）
+
+				request.getSession().setAttribute("list", list);//岗位权限名
+				request.getSession().setMaxInactiveInterval(-1);//会话将永远不会超时
+				map.put("info",0);
+				list.get(0).put("LOGINTYPE",loginType);
+				map.put("list",list);
+				return jacksonUtil.toJson(map);
+			}
+		}else if("1".equals(loginType)){
+			String sql = "select u.ID, u.USERNAME, u.REAL_NAME, u.STATION_ID, u.CLZS, s.STATION_NAME,s.STATION_JURI,s.POWER_IDS from tb_clz_user u,tb_taxi_station s where u.station_id=s.id and u.username=? and u.password=?";
+			List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, new Object[] {username,password});
+			if(list.size()==0){
+				map.put("info",1);
+				map.put("list",list);
+				return jacksonUtil.toJson(map);
+			}else{
+				//登录记录
+				String userid=list.get(0).get("ID")==null?"":list.get(0).get("ID").toString();
+				String insert="insert into TB_SUBCENTERS_LOGIN_HISTORY (USER_ID, LOGIN_TIME, LOGING_WAY, ACCOUNT_SORT) values ("+userid+", sysdate, 2, 0)";
+				jdbcTemplate.update(insert);
+				request.getSession().setAttribute("userid", list.get(0).get("ID")==null?"":list.get(0).get("ID").toString());//用户id
+				request.getSession().setAttribute("username", list.get(0).get("USERNAME")==null?"":list.get(0).get("USERNAME").toString());//登录名
+				request.getSession().setAttribute("realname", list.get(0).get("REAL_NAME")==null?"":list.get(0).get("REAL_NAME").toString());//用户姓名
+//				request.getSession().setAttribute("comps", list.get(0).get("DATE_VIEW_TYPE")==null?"":("'"+list.get(0).get("DATE_VIEW_TYPE").toString().replaceAll(",","','")+"'"));//用户公司
+//				request.getSession().setAttribute("parent", list.get(0).get("PARENT")==null?"":list.get(0).get("PARENT").toString());//用户的父节点
+				request.getSession().setAttribute("GroupId",list.get(0).get("CLZS")==null?"":list.get(0).get("CLZS").toString());//车辆组id
+				//用户能管理的所有车辆
+				String groupVhic =list.get(0).get("CLZS")==null?"":getGroupVehicles(list.get(0).get("CLZS").toString());
+				request.getSession().setAttribute("groupVhic",groupVhic);
+
+				request.getSession().setAttribute("comps","");
+				request.getSession().setAttribute("station_id", list.get(0).get("STATION_ID")==null?"":list.get(0).get("STATION_ID").toString());//岗位id
+				request.getSession().setAttribute("station_name", list.get(0).get("STATION_NAME")==null?"":list.get(0).get("STATION_NAME").toString());//岗位名
+				request.getSession().setAttribute("station_juri", list.get(0).get("STATION_JURI")==null?"":list.get(0).get("STATION_JURI").toString());//岗位权限名
+				request.getSession().setAttribute("power_ids", list.get(0).get("POWER_IDS")==null?"":list.get(0).get("POWER_IDS").toString());//岗位权限（页面id组合）
+
+				request.getSession().setAttribute("list", list);//岗位权限名
+				request.getSession().setMaxInactiveInterval(-1);//会话将永远不会超时
+				map.put("info",0);
+				//登录类型
+				list.get(0).put("LOGINTYPE",loginType);
+				//车辆组id
+				list.get(0).put("GROUPID",list.get(0).get("CLZS")==null?"":list.get(0).get("CLZS").toString());
+				//与‘正常账号登录’用户名的参数名称保持一致
+				list.get(0).put("USER_NAME",list.get(0).get("USERNAME")==null?"":list.get(0).get("USERNAME").toString());
+				//用户能管理的所有车辆
+				list.get(0).put("GROUPVHIC",groupVhic);
+				map.put("list",list);
+				return jacksonUtil.toJson(map);
+			}
+		}else{
+			map.put("info",1);
+			return jacksonUtil.toJson(map);
+		}
+	}
+
+	//获取权限
+	public String getIndex(HttpServletRequest request) {
+	    Map<String, Object> map = new HashMap<String, Object>();
+        map.put("info",request.getSession().getAttribute("list")==null?1:0);
+		map.put("list",request.getSession().getAttribute("list"));
+		return jacksonUtil.toJson(map);
+	}
+
+	//燃料类型
+	public String getFuelType() {
+		String sql = "select distinct rllx from vw_vehicle@db69 where rllx is not null order by rllx";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//终端类型
+	public String getTerminalType() {
+		String sql = "select distinct mt_name from vw_vehicle@db69 where mt_name is not null order by mt_name";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//车辆类型
+	public String getVehicleType() {
+		String sql = "select distinct vt_name from vw_vehicle@db69 where vt_name is not null order by vt_name";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//车辆组
+	public String getVehicleGroup(String userId) {
+		String tj = "";
+		if(userId!=null&&!userId.isEmpty()&&!userId.equals("null")&&userId.length()>0){
+			tj +=" and u.id = "+userId;
+		}
+		String sql = "select distinct u.*,c.clz_name from (SELECT distinct id,REGEXP_SUBSTR(clzs, '[^,]+', 1, LEVEL, 'i') AS clzs FROM tb_clz_user CONNECT BY LEVEL <= LENGTH(clzs) - LENGTH(REGEXP_REPLACE(clzs, ',', ''))+1) u" +
+				",tb_clz c" +
+				" where u.clzs=c.id";
+		sql += tj;
+		sql += " order by c.clz_name desc";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+
+	//车辆组车辆
+	public String getGroupVehicles(String id) {
+		String tj = "";
+		if(id!=null&&!id.isEmpty()&&!id.equals("null")&&id.length()>0){
+			tj +=" and c.id in ("+id+")";
+		}
+		String sql = "select c.* from tb_clz c" +
+				" where 1=1";
+		sql += tj;
+		sql += " order by c.id desc";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		String vehicles="";
+		if(list.size()==1){
+			vehicles +=list.get(0).get("CLZ_CP");
+		}else if(list.size()>1){
+			for (int i = 0; i < list.size(); i++) {
+				if(i==0){
+					vehicles +=list.get(i).get("CLZ_CP");
+				}else{
+					vehicles +=","+list.get(i).get("CLZ_CP");
+				}
+			}
+		}else{
+			return "";
+		}
+		List newList = Arrays.asList(vehicles.split(",")).stream().distinct().collect(Collectors.toList());
+		vehicles = String.join(",",newList);
+		return vehicles;
+	}
+
+	//车辆组权限sql片段
+	public String Transformation(ArrayList<String> list,String field){
+		String loginType = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("loginType")==null?"":((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("loginType").toString();
+		//判断登录类型
+		if("1".equals(loginType)){
+//			//判断查询条件是否有车辆组id，有：获取对应车辆组id的车辆，没有：获取改用户下的全部车辆
+//			if(vehicleGroupId!=null&&!vehicleGroupId.isEmpty()&&!vehicleGroupId.equals("null")){
+//				list = new ArrayList<String>(Arrays.asList(commonServer.getGroupVehicles(vehicleGroupId).split(",")));
+//			}
+			if(list.size()==1&&"".equals(list.get(0))){
+				return " or "+field + "in ('') ";
+			}else{
+				int init = 900;// 每隔100条循环一次
+				int total = list.size();
+				int cycelTotal = total / init;
+				if (total % init != 0) {
+					cycelTotal += 1;
+					if (total < init) {
+						init = list.size();
+					}
+				}
+				ArrayList<String> cphm = new ArrayList<String>();
+				ArrayList<String> list2 = new ArrayList<String>();
+				for (int i = 0; i < cycelTotal; i++) {
+					for (int j = 0; j < init; j++) {
+						try {
+							if (list.get(j) == null) {
+								break;
+							}
+							list2.add(list.get(j));
+						} catch (Exception e) {
+						}
+					}
+					cphm.add("'"+String.join( "','",list2)+"'");
+					list.removeAll(list2);//移出已经保存过的数据
+					list2.clear();//移出当前保存的数据
+				}
+				String tj = " or ( ";
+				if(cphm.size() ==1){
+					tj += field+" in ("+cphm.get(0)+") ";
+				}else{
+					for (int i = 0; i < cphm.size(); i++) {
+						if(i == 0){
+							tj += field +" in ("+cphm.get(i)+") ";
+						}else{
+							tj += " or "+field+" in ("+cphm.get(i)+") ";
+						}
+					}
+				}
+				tj += " ) ";
+				return tj;
+			}
+		}else{
+			return "";
+		}
+	}
+
+
+}

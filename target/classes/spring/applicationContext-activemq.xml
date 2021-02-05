@@ -29,7 +29,7 @@
     <!-- 真正可以产生Connection的ConnectionFactory，由对应的 JMS服务厂商提供-->
     <!-- 如果连接网络：tcp://ip:61616；未连接网络：tcp://localhost:61616 以及用户名，密码-->
     <amq:connectionFactory id="amqConnectionFactory"
-                           brokerURL="tcp://192.168.0.140:61616"
+                           brokerURL="tcp://192.168.0.102:61616"
                            userName="admin" password="admin"  />
 
     <!-- Spring Caching连接工厂 -->
@@ -93,7 +93,7 @@
     <!-- 定义队列目的地 ，点对点 -->
     <bean id="queueDestination" class="org.apache.activemq.command.ActiveMQTopic">
         <constructor-arg>
-            <value>905_order_send</value>
+            <value>hz_taxi_905_gj</value>
         </constructor-arg>
     </bean>
     <bean id="queueDestination1" class="org.apache.activemq.command.ActiveMQTopic">

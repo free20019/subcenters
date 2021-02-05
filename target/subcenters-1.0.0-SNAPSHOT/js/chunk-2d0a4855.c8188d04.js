@@ -1,2 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d0a4855"],{"0791":function(e,t,n){"use strict";n.r(t);var a=function(){var e=this,t=e.$createElement,n=e._self._c||t;return n("div",{staticClass:"tw-template-wrapper"},[e._v("电子围栏")])},c=[],l={name:"ElectricFence"},r=l,s=n("2877"),u=Object(s["a"])(r,a,c,!1,null,null,null);t["default"]=u.exports}}]);
-//# sourceMappingURL=chunk-2d0a4855.c8188d04.js.map
